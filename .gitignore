@@ -58,6 +58,9 @@ typings/
 .env
 
 # PocketNode files
+players/
+plugins/
+worlds/
 server.properties.json
 banned-*.json
 ops.json
