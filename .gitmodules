@@ -1,0 +1,3 @@
+[submodule "src/RakNet"]
+	path = src/raknet
+	url = https://github.com/PocketNode/RakNet.git
