@@ -23,3 +23,5 @@ TextFormat.STRIKETHROUGH = TextFormat.ESCAPE + "m";
 TextFormat.UNDERLINE     = TextFormat.ESCAPE + "n";
 TextFormat.ITALIC        = TextFormat.ESCAPE + "o";
 TextFormat.RESET         = TextFormat.ESCAPE + "r";
+
+module.exports = TextFormat;
