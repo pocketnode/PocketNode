@@ -2,12 +2,12 @@ require("../utils/StringTools.js");
 
 const DefaultLogLevels = [
     "emergency",
-    "alert";
-    "critical";
-    "error";
-    "warning";
-    "notice";
-    "info";
+    "alert",
+    "critical",
+    "error",
+    "warning",
+    "notice",
+    "info",
     "debug"
 ];
 
