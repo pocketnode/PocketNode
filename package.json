@@ -1,0 +1,22 @@
+{
+  "name": "pocketnode",
+  "version": "1.0.0",
+  "description": "Server software written in Javascript for Minecraft: PE",
+  "main": "start.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "pocketedition",
+    "pe",
+    "mcpe",
+    "minecraftpe",
+    "mcbe"
+  ],
+  "author": "eDroid",
+  "license": "ISC",
+  "dependencies": {
+    "bytebuffer": "^5.0.1",
+    "dgram": "^1.0.1"
+  }
+}
