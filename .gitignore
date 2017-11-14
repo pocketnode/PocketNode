@@ -57,3 +57,8 @@ typings/
 # dotenv environment variables file
 .env
 
+# PocketNode files
+server.properties.json
+banned-*.json
+ops.json
+whitelist.json
