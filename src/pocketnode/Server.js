@@ -50,7 +50,7 @@ class Server {
         new RakNetServer(this);
 
         this.logger.info("This server is running " + this.getName() + " version " + this.getPocketNodeVersion() + " \"" + this.getCodeName() + "\" (API " + this.getApiVersion() + ")");
-        this.logger.info("No license yet lol");
+        this.logger.info("PocketNode is distributed under the GPLv3 License.");
 
 
         // plugin stuff here
