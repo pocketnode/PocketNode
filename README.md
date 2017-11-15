@@ -2,8 +2,15 @@
 **A server software for Minecraft: Bedrock written in node.js**
 
 ## Running
+First Run:
 ```
-npm install && node start
+$ git submodule init && git submodule update --recursive --remote
+$ npm install && node start
+```
+
+Afterwards:
+```
+$ node start
 ```
 
 ## Discussion
