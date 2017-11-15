@@ -8,8 +8,6 @@ class Server {
         this.logger = logger;
         this.paths = paths;
 
-        logger.setDebugging(true);
-
         if(!FileSystem.existsSync(this.paths.home + "worlds/")){
             FileSystem.mkdirSync(this.paths.home + "worlds/");
         }
@@ -26,6 +24,7 @@ class Server {
 
         this.logger.info("Loading server properties...");
         this.properties = new Config(this.paths.home + "server.properties.json", ConfigTypes.JSON, {
+            is_debugging: false,
             motd: this.getName() + " Server",
             ip: "0.0.0.0",
             port: 19132,
@@ -33,6 +32,7 @@ class Server {
             max_players: 20,
             gamemode: 0
         });
+        logger.setDebugging(this.properties.get("is_debugging", false));
 
         this.ops = new Config(this.paths.home + "ops.json", ConfigTypes.JSON);
         this.whitelist = new Config(this.paths.home + "whitelist.json", ConfigTypes.JSON);
@@ -41,7 +41,7 @@ class Server {
             ips: new Config(this.paths.home + "banned-ips.json", ConfigTypes.JSON)
         };
         this.playerList = [];
-        this.maxPlayers = this.properties.max_players;
+        this.maxPlayers = this.properties.get("max_players", 20);
 
         this.logger.info("Starting Minecraft: PE server on " + this.getIp() + ":" + this.getPort());
 
