@@ -3,27 +3,50 @@ const ConfigTypes = require("./utils/Config.js").Types;
 const RakNetServer = require("../raknet/server/RakNetServer.js");
 const FileSystem = require("fs");
 class Server {
+    initVars(){
+        this.interfaces = {};
+
+        this.banned = {};
+        this.ops = {};
+        this.whitelist = {};
+
+        this.isRunning = true;
+        this.hasStopped = false;
+
+        this.logger = {};
+
+        this.onlineMode = false;
+        this.serverId = Math.floor((Math.random() * 99999999)+1);
+        this.paths = {};
+
+        this.players = [];
+
+        this.levels = [];
+    }
+
     constructor(PocketNode, logger, paths){
+        this.initVars();
+
         this.PocketNode = PocketNode;
         this.logger = logger;
         this.paths = paths;
 
-        if(!FileSystem.existsSync(this.paths.home + "worlds/")){
-            FileSystem.mkdirSync(this.paths.home + "worlds/");
+        if(!FileSystem.existsSync(this.getDataPath() + "worlds/")){
+            FileSystem.mkdirSync(this.getDataPath() + "worlds/");
         }
 
-        if(!FileSystem.existsSync(this.paths.home + "players/")){
-            FileSystem.mkdirSync(this.paths.home + "players/");
+        if(!FileSystem.existsSync(this.getDataPath() + "players/")){
+            FileSystem.mkdirSync(this.getDataPath() + "players/");
         }
 
         if(!FileSystem.existsSync(this.paths.plugins)){
             FileSystem.mkdirSync(this.paths.plugins);
         }
 
-        this.logger.info("Starting " + this.getName() + " a Minecraft: PE server for version " + this.getVersion());
+        this.getLogger().info("Starting " + this.getName() + " a Minecraft: Bedrock Edition server for version " + this.getVersion());
 
-        this.logger.info("Loading server properties...");
-        this.properties = new Config(this.paths.home + "server.properties.json", ConfigTypes.JSON, {
+        this.getLogger().info("Loading server properties...");
+        this.properties = new Config(this.getDataPath() + "server.properties.json", ConfigTypes.JSON, {
             motd: this.getName() + " Server",
             ip: "0.0.0.0",
             port: 19132,
@@ -32,25 +55,19 @@ class Server {
             gamemode: 0,
             is_debugging: false
         });
-        logger.setDebugging(this.properties.get("is_debugging", false));
+        this.getLogger().setDebugging(this.properties.get("is_debugging", false));
 
-        this.ops = new Config(this.paths.home + "ops.json", ConfigTypes.JSON);
-        this.whitelist = new Config(this.paths.home + "whitelist.json", ConfigTypes.JSON);
-        this.banned = {
-            names: new Config(this.paths.home + "banned-names.json", ConfigTypes.JSON),
-            ips: new Config(this.paths.home + "banned-ips.json", ConfigTypes.JSON)
-        };
-        this.playerList = [];
-        this.maxPlayers = this.properties.get("max_players", 20);
+        this.ops = new Config(this.getDataPath() + "ops.json", ConfigTypes.JSON);
+        this.whitelist = new Config(this.getDataPath() + "whitelist.json", ConfigTypes.JSON);
+        this.banned.names = new Config(this.getDataPath() + "banned-names.json", ConfigTypes.JSON);
+        this.banned.ips = new Config(this.getDataPath() + "banned-ips.json", ConfigTypes.JSON);
 
-        this.logger.info("Starting Minecraft: PE server on " + this.getIp() + ":" + this.getPort());
-
-        this.serverId = 53412923;
+        this.getLogger().info("Starting Minecraft: PE server on " + this.getIp() + ":" + this.getPort());
         
-        new RakNetServer(this);
+        this.interfaces.raknet = new RakNetServer(this);
 
-        this.logger.info("This server is running " + this.getName() + " version " + this.getPocketNodeVersion() + " \"" + this.getCodeName() + "\" (API " + this.getApiVersion() + ")");
-        this.logger.info("PocketNode is distributed under the GPLv3 License.");
+        this.getLogger().info("This server is running " + this.getName() + " version " + this.getPocketNodeVersion() + " \"" + this.getCodeName() + "\" (API " + this.getApiVersion() + ")");
+        this.getLogger().info("PocketNode is distributed under the GPLv3 License.");
 
 
         // plugin stuff here
@@ -60,7 +77,7 @@ class Server {
      * @return Boolean
      */
     isRunning(){ //todo
-        return true;
+        return this.isRunning;
     }
 
     /**
@@ -88,7 +105,7 @@ class Server {
      * @return String
      */
     getVersion(){
-        return "0.14.0";
+        return "1.2.3";
     }
 
     /**
@@ -101,8 +118,8 @@ class Server {
     /**
      * @return String
      */
-    getFilePath(){
-        return this.paths.home;
+    getDataPath(){
+        return this.paths.data;
     }
 
     /**
@@ -116,15 +133,28 @@ class Server {
      * @return Integer
      */
     getMaxPlayers(){
-        return this.maxPlayers;
+        return this.properties.get("max_players", 20);
     }
 
-    //add xbox live support
-    //getOnlineMode
-    //requiresAuthentication
+    /**
+     * Returns whether the server requires players to be authenticated to Xbox Live.
+     * 
+     * @return Boolean
+     */
+    getOnlineMode(){
+        return this.onlineMode;
+    }
     
     /**
-     * @return Integer
+     * Alias of this.getOnlineMode()
+     * @return Boolean
+     */
+    requiresAuthentication(){
+        return this.getOnlineMode();
+    }
+    
+    /**
+     * @return String
      */
     getIp(){
         return this.properties.get("ip", "0.0.0.0");
@@ -135,6 +165,13 @@ class Server {
      */
     getPort(){
         return this.properties.get("port", 19132);
+    }
+
+    /**
+     * @return Boolean
+     */
+    getServerId(){
+        return this.serverId;
     }
 
     //getAutoSave
@@ -193,7 +230,7 @@ class Server {
      * @return Array
      */
     getOnlinePlayers(){
-        return this.playerList;
+        return this.players;
     }
 
     //addRecipe
@@ -253,7 +290,7 @@ class Server {
      *
      * @return Player[]
      */
-    matchPlayer($partialName){
+    matchPlayer(partialName){
         partialName = partialName.toLowerCase();
         let matchedPlayers = [];
 
@@ -285,12 +322,16 @@ class Server {
     //getConfigString
     //getPluginCommand
     
-    // banlist?
+    /**
+     * @return Config
+     */
     getNameBans(){
         return this.banned.names;
     }
 
-    // banlist?
+    /**
+     * @return Config
+     */
     getIpBans(){
         return this.banned.ips;
     }

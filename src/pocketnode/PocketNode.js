@@ -7,10 +7,10 @@ class PocketNode {
         this.VERSION = "0.0.1dev";
         this.API_VERSION = "1.0.0";
 
-
         let logger = new Logger();
         let paths = {
-            home: __dirname + "/../../",
+            file: __dirname + "/../../../",
+            data: __dirname + "/../../",
             plugins: __dirname + "/../../plugins/"
         };
 
