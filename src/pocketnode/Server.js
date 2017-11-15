@@ -1,6 +1,6 @@
 const Config = require("./utils/Config.js").Config;
 const ConfigTypes = require("./utils/Config.js").Types;
-const RakNetServer = require("../raknet/RakNetServer.js");
+const RakNetServer = require("../raknet/server/RakNetServer.js");
 const FileSystem = require("fs");
 class Server {
     constructor(PocketNode, logger, paths){
@@ -24,13 +24,13 @@ class Server {
 
         this.logger.info("Loading server properties...");
         this.properties = new Config(this.paths.home + "server.properties.json", ConfigTypes.JSON, {
-            is_debugging: false,
             motd: this.getName() + " Server",
             ip: "0.0.0.0",
             port: 19132,
             whitelist: false,
             max_players: 20,
-            gamemode: 0
+            gamemode: 0,
+            is_debugging: false
         });
         logger.setDebugging(this.properties.get("is_debugging", false));
 
