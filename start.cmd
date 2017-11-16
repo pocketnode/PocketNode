@@ -1,6 +1,6 @@
 @echo off
-title PocketNode : Minecraft Bedrock Edition Server Software
-set loop=true
+title PocketNode: Minecraft Bedrock Edition Server Software
+set loop=false
 set /A "loops=1"
 
 where node >nul 2>&1 && goto startScript || (

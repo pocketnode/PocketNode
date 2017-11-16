@@ -1,4 +1,4 @@
-$host.ui.RawUI.WindowTitle = "PocketNode : Minecraft Bedrock Edition Server Software"
+$host.ui.RawUI.WindowTitle = "PocketNode: Minecraft Bedrock Edition Server Software"
 $Loop = "false"
 
 function StartServer{
