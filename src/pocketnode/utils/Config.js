@@ -1,5 +1,4 @@
 const FileSystem = require("fs");
-const isset = require("./Isset.js");
 
 const ConfigTypes = {
     DETECT: 0,
@@ -8,9 +7,9 @@ const ConfigTypes = {
 
 class Config {
     /**
-     * @param String  file file path
-     * @param Integer type file type
-     * @param Object  def  default
+     * @param file String
+     * @param type Number
+     * @param def  Object
      */
     constructor(file, type, def){
         this.load(file, type, def);
@@ -47,11 +46,8 @@ class Config {
                     this.config = def;
                 }
 
-                let fill = this.fillDefaults(def, this.config);
-                if(fill.changed > 0){
-                    this.config = fill.data;
-                    this.save();
-                }
+                this.config = this.fillDefaults(def, this.config);
+                this.save();
             }else{
                 return false;
             }
@@ -90,7 +86,7 @@ class Config {
 
     get(k, def){
         def = def || false;
-        return ((this.correct && isset(this.config[k])) ? this.config[k] : def);
+        return ((this.correct && typeof this.config[k] !== "undefined") ? this.config[k] : def);
     }
 
     getAll(k){
@@ -112,9 +108,9 @@ class Config {
             k = k.toLowerCase();
             let array = Object.keys(this.config).map(k => {return k.toLowerCase()});
 
-            return isset(array[k]);
+            return typeof array[k] !== "undefined";
         }else{
-            return isset(this.config[k]);
+            return typeof this.config[k] !== "undefined";
         }
     }
 
@@ -123,25 +119,7 @@ class Config {
     }
 
     fillDefaults(def, data){
-        let changed = 0;
-
-        for(let k in def){
-            let v = def[k];
-
-            if(v instanceof Object){
-                if(!isset(data[k]) && !(data[k] instanceof Object)){
-                    data[k] = [];
-                }
-                let fill = this.fillDefaults(v, data[k]);
-                data[k] = fill.data;
-                changed += fill.changed;
-            }else if(!isset(data[k])){
-                data[k] = v;
-                ++changed;
-            }
-        }
-
-        return {changed: changed, data: data};
+        return Object.assign(data, def);
     }
 }
 
