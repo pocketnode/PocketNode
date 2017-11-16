@@ -17,7 +17,7 @@
   "license": "ISC",
   "dependencies": {
     "bytebuffer": "^5.0.1",
-    "chalk": "^2.3.0",
-    "dgram": "^1.0.1"
+    "dgram": "^1.0.1",
+    "time-stamp": "^2.0.0"
   }
 }
