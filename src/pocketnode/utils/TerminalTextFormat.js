@@ -17,7 +17,7 @@ TerminalTextFormat.LIGHT_PURPLE  = TerminalTextFormat.ESCAPE + "[35;1m";
 TerminalTextFormat.YELLOW        = TerminalTextFormat.ESCAPE + "[33;1m";
 TerminalTextFormat.WHITE         = TerminalTextFormat.ESCAPE + "[37;1m";
 
-//TerminalTextFormat.OBFUSCATED    = TerminalTextFormat.ESCAPE + "";
+TerminalTextFormat.OBFUSCATED    = TerminalTextFormat.ESCAPE + "[47m";
 TerminalTextFormat.BOLD          = TerminalTextFormat.ESCAPE + "[1m";
 TerminalTextFormat.STRIKETHROUGH = TerminalTextFormat.ESCAPE + "[9m";
 TerminalTextFormat.UNDERLINE     = TerminalTextFormat.ESCAPE + "[4m";
