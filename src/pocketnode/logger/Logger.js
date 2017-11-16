@@ -1,3 +1,5 @@
+const TimeStamp = require("time-stamp");
+
 const TextFormat = require("../utils/TextFormat.js");
 const TerminalTextFormat = require("../utils/TerminalTextFormat.js");
 
@@ -74,9 +76,9 @@ class Logger {
             }
         }
 
-        message = (color === "" ? message : message+TerminalTextFormat.RESET);
+        message = (color === "" ? message : message + TerminalTextFormat.RESET);
 
-        console.log(color+"["+level+"] "+message);
+        console.log(TerminalTextFormat.BLUE + "[" + TimeStamp("HH:mm:ss") + "] " + TerminalTextFormat.RESET + color +"[" + level + "]: " + message);
     }
 
     setDebugging(tf){
