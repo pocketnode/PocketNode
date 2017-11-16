@@ -1,6 +1,11 @@
 const Config = require("./utils/Config.js").Config;
 const ConfigTypes = require("./utils/Config.js").Types;
 const RakNetServer = require("../raknet/server/RakNetServer.js");
+
+const CommandHandler = require("./command/CommandHandler.js");
+const ConsoleCommandReader = require("./command/ConsoleCommandReader.js");
+const HelpCommand = require("./command/defaults/HelpCommand.js");
+
 const FileSystem = require("fs");
 class Server {
     initVars(){
@@ -19,9 +24,8 @@ class Server {
         this.serverId = Math.floor((Math.random() * 99999999)+1);
         this.paths = {};
 
-        this.players = [];
-
         this.levels = [];
+        this.players = [];
     }
 
     constructor(PocketNode, logger, paths){
@@ -65,6 +69,10 @@ class Server {
         this.getLogger().info("Starting Minecraft: PE server on " + this.getIp() + ":" + this.getPort());
         
         this.interfaces.raknet = new RakNetServer(this);
+        this.interfaces.commandHandler = new CommandHandler(this);
+        this.interfaces.consoleCommandReader = new ConsoleCommandReader(this);
+
+        this.getCommandHandler().registerCommand(new HelpCommand());
 
         this.getLogger().info("This server is running " + this.getName() + " version " + this.getPocketNodeVersion() + " \"" + this.getCodeName() + "\" (API " + this.getApiVersion() + ")");
         this.getLogger().info("PocketNode is distributed under the GPLv3 License.");
@@ -78,6 +86,13 @@ class Server {
      */
     isRunning(){ //todo
         return this.isRunning;
+    }
+
+    /**
+     * @returns {CommandHandler}
+     */
+    getCommandHandler(){
+        return this.interfaces.commandHandler;
     }
 
     /**
@@ -130,7 +145,7 @@ class Server {
     }
 
     /**
-     * @return Integer
+     * @return Number
      */
     getMaxPlayers(){
         return this.properties.get("max_players", 20);
@@ -161,7 +176,7 @@ class Server {
     }
 
     /**
-     * @return Integer
+     * @return Number
      */
     getPort(){
         return this.properties.get("port", 19132);
@@ -173,18 +188,6 @@ class Server {
     getServerId(){
         return this.serverId;
     }
-
-    //getAutoSave
-    //setAutoSave
-    //getLevelType
-    //getGenerateStructures
-    //getGamemode
-    //getForceGamemode
-    //getGamemodeString
-    //getGamemodeName
-    //getGamemodeFromString
-    //getDifficultyByString
-    //getDifficulty
     
     /**
      * @return Boolean
@@ -192,11 +195,6 @@ class Server {
     hasWhitelist(){
         return this.properties.get("whitelist", false);
     }
-
-    //getSpawnRadius
-    //getAllowFlight
-    //isHardcore
-    //getDefaultGamemode
     
     /**
      * @return String
@@ -206,26 +204,12 @@ class Server {
     }
 
     /**
-     * @return Logger
+     * @return {Logger}
      */
     getLogger(){
         return this.logger;
     }
 
-    //getEntityMetadata
-    //getPlayerMetadata
-    //getLevelMetadata
-    //getUpdater
-    //getPluginManager
-    //getScheduler
-    //getTick
-    //getTicksPerSecond
-    //getTicksPerSecondAverage
-    //getTickUsage
-    //getTickUsageAverage
-    //getCommandMap
-    //getLoggedInPlayers
-    
     /**
      * @return Array
      */
@@ -233,14 +217,8 @@ class Server {
         return this.players;
     }
 
-    //addRecipe
-    //shouldSavePlayerData
-    //getOfflinePlayer
-    //getOfflinePlayerData
-    //saveOfflinePlayerData
-
     /**
-     * @param  String name
+     * @param name String
      * 
      * @return Player
      */
@@ -267,7 +245,7 @@ class Server {
     }
 
     /**
-     * @param  String name
+     * @param name String
      * 
      * @return Player
      */
@@ -286,7 +264,7 @@ class Server {
     }
 
     /**
-     * @param String partialName
+     * @param partialName String
      *
      * @return Player[]
      */
@@ -307,30 +285,16 @@ class Server {
 
         return matchedPlayers;
     }
-
-    //removePlayer
-    //getLevels
-    //getDefaultLevel
-    //setDefaultLevel
-    //isLevelLoaded
-    //getLevel
-    //getLevelByName
-    //unloadLevel
-    //loadLevel
-    //generateLevel
-    //isLevelGenerated
-    //getConfigString
-    //getPluginCommand
     
     /**
-     * @return Config
+     * @return {Config}
      */
     getNameBans(){
         return this.banned.names;
     }
 
     /**
-     * @return Config
+     * @return {Config}
      */
     getIpBans(){
         return this.banned.ips;
