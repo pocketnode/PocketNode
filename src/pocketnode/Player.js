@@ -3,20 +3,29 @@ const CommandSender = require("./command/CommandSender.js");
 class Player extends CommandSender {
     initVars(){
         this.username = "";
-        this.displayName = ""
+        this.displayName = "";
+        this.clientId = -1;
+        this.ip = "";
+        this.port = -1;
     }
     
-    constructor(){
-        super();
+    constructor(server, username, clientId, ip, port){
+        super(server);
         this.initVars();
+        if(this.isValidUserName(username)){
+            this.username = username;
+            this.clientId = clientId;
+            this.ip = ip;
+            this.port = port;
+        }
     }
     
     isValidUserName(name){
-		if(name === null){
-			return false;
-		}
-		return name.toLowerCase() !== "rcon" and name.toLowerCase() !== "console" and name.length >= 1;// and name.length <= 16 and preg_match("/[^A-Za-z0-9_ ]/", $name) === 0;
-	}
+        if(name === null){
+            return false;
+        }
+        return name.toLowerCase() !== "rcon" && name.toLowerCase() !== "console" && name.length >= 1 && name.length <= 16 && /[^A-Za-z0-9_ ]/.test(name);
+    }
 }
 
 module.exports = Player;
