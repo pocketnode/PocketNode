@@ -2,7 +2,7 @@ const Command = require("./Command.js");
 const CommandSender = require("./CommandSender.js");
 const InvalidParameterError = require("../error/InvalidParameterError.js");
 
-class CommandHandler {
+class CommandMap {
     initVars(){
         this.PocketNodeServer = {};
         this.commands = new Map();
@@ -61,6 +61,14 @@ class CommandHandler {
         }
     }
 
+    getCommands(){
+        return Array.from(this.commands.values());
+    }
+
+    getAliases(){
+        return Array.from(this.aliases.values());
+    }
+
     getCommand(commandName){
         let command = this.getCommandByName(commandName);
         if(command !== false){
@@ -115,10 +123,25 @@ class CommandHandler {
                      command.execute(sender, args);
                  }
              }
+        }else if(this.aliases.has(cmd)){
+            let command = this.aliases.get(cmd);
+            if(command.getArguments().filter(arg => arg.isRequired()).length > 0){
+                if(args.length > 0){
+                    if(sender instanceof CommandSender){
+                        command.execute(sender, args);
+                    }
+                }else{
+                    sender.sendMessage(command.getUsage());
+                }
+            }else{
+                if(sender instanceof CommandSender){
+                    command.execute(sender, args);
+                }
+            }
         }else{
-            sender.sendMessage("§4Command Not Found!");
+            sender.sendMessage("§4Command Not Found. Try /help for a list of commands.");
         }
     }
 }
 
-module.exports = CommandHandler;
+module.exports = CommandMap;
