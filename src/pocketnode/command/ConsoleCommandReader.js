@@ -9,7 +9,7 @@ class ConsoleCommandReader {
         });
 
         rl.on("line", (input) => {
-            Server.getCommandHandler().dispatchCommand(CommandSender, input);
+            Server.getCommandMap().dispatchCommand(CommandSender, input);
         });
     }
 }
