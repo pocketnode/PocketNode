@@ -1,12 +1,16 @@
 const Config = require("./utils/Config.js").Config;
 const ConfigTypes = require("./utils/Config.js").Types;
+
 const RakNetServer = require("../raknet/server/RakNetServer.js");
 
-const CommandHandler = require("./command/CommandHandler.js");
+const CommandMap = require("./command/CommandMap.js");
 const ConsoleCommandReader = require("./command/ConsoleCommandReader.js");
 const HelpCommand = require("./command/defaults/HelpCommand.js");
 
+const Player = require("./Player.js");
+
 const FileSystem = require("fs");
+
 class Server {
     initVars(){
         this.interfaces = {};
@@ -24,8 +28,8 @@ class Server {
         this.serverId = Math.floor((Math.random() * 99999999)+1);
         this.paths = {};
 
-        this.levels = [];
-        this.players = [];
+        this.levels = new Map();
+        this.players = new Map();
     }
 
     constructor(PocketNode, logger, paths){
@@ -68,11 +72,11 @@ class Server {
 
         this.getLogger().info("Starting Minecraft: PE server on " + this.getIp() + ":" + this.getPort());
         
-        this.interfaces.raknet = new RakNetServer(this);
-        this.interfaces.commandHandler = new CommandHandler(this);
-        this.interfaces.consoleCommandReader = new ConsoleCommandReader(this);
+        this.interfaces.RakNet = new RakNetServer(this);
+        this.interfaces.CommandMap = new CommandMap(this);
+        this.interfaces.ConsoleCommandReader = new ConsoleCommandReader(this);
 
-        this.getCommandHandler().registerCommand(new HelpCommand());
+        this.getCommandMap().registerCommand(new HelpCommand());
 
         this.getLogger().info("This server is running " + this.getName() + " version " + this.getPocketNodeVersion() + " \"" + this.getCodeName() + "\" (API " + this.getApiVersion() + ")");
         this.getLogger().info("PocketNode is distributed under the GPLv3 License.");
@@ -84,15 +88,15 @@ class Server {
     /**
      * @return Boolean
      */
-    isRunning(){ //todo
+    isRunning(){
         return this.isRunning;
     }
 
     /**
-     * @returns {CommandHandler}
+     * @returns {CommandMap}
      */
-    getCommandHandler(){
-        return this.interfaces.commandHandler;
+    getCommandMap(){
+        return this.interfaces.CommandMap;
     }
 
     /**
@@ -162,6 +166,7 @@ class Server {
     
     /**
      * Alias of this.getOnlineMode()
+     *
      * @return Boolean
      */
     requiresAuthentication(){
@@ -206,31 +211,41 @@ class Server {
     /**
      * @return {Logger}
      */
+    static getLogger(){
+        return new (require("./logger/Logger.js"));
+    }
     getLogger(){
         return this.logger;
     }
 
     /**
-     * @return Array
+     * @return Map
      */
     getOnlinePlayers(){
         return this.players;
     }
 
     /**
+     * @returns Number
+     */
+    getOnlinePlayerCount(){
+        return this.getOnlinePlayers().size;
+    }
+
+    /**
      * @param name String
      * 
-     * @return Player
+     * @return {Player}
      */
     getPlayer(name){
         name = name.toLowerCase();
+        
         let found = null;
         let delta = 20; // estimate nametag length
-        let onlinePlayers = this.getOnlinePlayers();
-        for(var index in onlinePlayers){
-            let player = onlinePlayers[index];
-            if(player.getName().indexOf(name) === 0){
-                let curDelta = player.getName().length - name.length;
+
+        for(let [username, player] of this.getOnlinePlayers()){
+            if(username.indexOf(name) === 0){
+                let curDelta = username.length - name.length;
                 if(curDelta < delta){
                     found = player;
                     delta = curDelta;
@@ -247,17 +262,14 @@ class Server {
     /**
      * @param name String
      * 
-     * @return Player
+     * @return {Player}
      */
     getPlayerExact(name){
         name = name.toLowerCase();
 
         let onlinePlayers = this.getOnlinePlayers();
-        for(var index in onlinePlayers){
-            let player = onlinePlayers[index];
-            if(player.getName().toLowerCase() === name){
-                return player;
-            }
+        if(onlinePlayers.has(name)){
+            return onlinePlayers.get(name);
         }
 
         return null;
@@ -266,24 +278,31 @@ class Server {
     /**
      * @param partialName String
      *
-     * @return Player[]
+     * @return {Player}[]
      */
     matchPlayer(partialName){
         partialName = partialName.toLowerCase();
         let matchedPlayers = [];
 
-        let onlinePlayers = this.getOnlinePlayers();
-        for(var index in onlinePlayers){
-            let player = onlinePlayers[index];
-            if(player.getName().toLowerCase() === partialName){
+        for(let [username, player] of this.getOnlinePlayers()){
+            if(username === partialName){
                 matchedPlayers = [player];
                 break;
-            }else if(player.getName().indexOf(partialName) === 0){
+            }else if(username.indexOf(partialName) === 0){
                 matchedPlayers.push(player);
             }
         }
 
         return matchedPlayers;
+    }
+
+    registerPlayer(name, player){
+        if(player instanceof Player){
+            this.players.set(name.toLowerCase(), player);
+            return true;
+        }else{
+            return false;
+        }
     }
     
     /**
