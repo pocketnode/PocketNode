@@ -2,8 +2,7 @@ const CommandSender = require("./CommandSender.js");
 
 class ConsoleCommandSender extends CommandSender {
     constructor(server){
-        super();
-        this.server = server;
+        super(server);
     }
 
     sendMessage(message){
