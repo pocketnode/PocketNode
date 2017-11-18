@@ -1,6 +1,6 @@
-const Command = require("./Command.js");
-const CommandSender = require("./CommandSender.js");
-const InvalidParameterError = require("../error/InvalidParameterError.js");
+const Command = require("./Command");
+const CommandSender = require("./CommandSender");
+const InvalidParameterError = require("../error/InvalidParameterError");
 
 class CommandMap {
     initVars(){

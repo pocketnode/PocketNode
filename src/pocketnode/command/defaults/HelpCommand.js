@@ -1,5 +1,5 @@
-const Command = require("../Command.js");
-const TextFormat = require("../../utils/TextFormat.js");
+const Command = require("../Command");
+const TextFormat = require("../../utils/TextFormat");
 
 class HelpCommand extends Command {
     constructor(){

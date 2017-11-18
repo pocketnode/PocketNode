@@ -1,4 +1,4 @@
-const TextFormat = require("../utils/TextFormat.js");
+const TextFormat = require("../utils/TextFormat");
 
 class Command {
     initVars(){

@@ -1,5 +1,5 @@
 const readline = require('readline');
-const ConsoleCommandSender = require("./ConsoleCommandSender.js");
+const ConsoleCommandSender = require("./ConsoleCommandSender");
 
 class ConsoleCommandReader {
     constructor(Server){
