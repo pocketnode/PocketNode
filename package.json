@@ -18,6 +18,7 @@
   "dependencies": {
     "bytebuffer": "^5.0.1",
     "dgram": "^1.0.1",
+    "invert-kv": "^1.0.0",
     "time-stamp": "^2.0.0"
   }
 }
