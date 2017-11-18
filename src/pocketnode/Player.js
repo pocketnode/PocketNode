@@ -1,4 +1,4 @@
-const CommandSender = require("./command/CommandSender.js");
+const CommandSender = require("./command/CommandSender");
 
 class Player extends CommandSender {
     initVars(){

@@ -1,5 +1,5 @@
-const Logger = require("./logger/Logger.js");
-const Server = require("./Server.js");
+const Logger = require("./logger/Logger");
+const Server = require("./Server");
 class PocketNode {
     constructor(){
         this.NAME = "PocketNode";
