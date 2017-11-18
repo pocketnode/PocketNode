@@ -1,13 +1,14 @@
-const Config = require("./utils/Config.js").Config;
-const ConfigTypes = require("./utils/Config.js").Types;
+const MinecraftInfo = require("./network/minecraft/Info");
+const Config = require("./utils/Config").Config;
+const ConfigTypes = require("./utils/Config").Types;
 
-const RakNetServer = require("../raknet/server/RakNetServer.js");
+const RakNetServer = require("../raknet/server/RakNetServer");
 
-const CommandMap = require("./command/CommandMap.js");
-const ConsoleCommandReader = require("./command/ConsoleCommandReader.js");
-const HelpCommand = require("./command/defaults/HelpCommand.js");
+const CommandMap = require("./command/CommandMap");
+const ConsoleCommandReader = require("./command/ConsoleCommandReader");
+const HelpCommand = require("./command/defaults/HelpCommand");
 
-const Player = require("./Player.js");
+const Player = require("./Player");
 
 const FileSystem = require("fs");
 
@@ -93,13 +94,6 @@ class Server {
     }
 
     /**
-     * @returns {CommandMap}
-     */
-    getCommandMap(){
-        return this.interfaces.CommandMap;
-    }
-
-    /**
      * @return String
      */
     getName(){
@@ -124,7 +118,14 @@ class Server {
      * @return String
      */
     getVersion(){
-        return "1.2.3";
+        return MinecraftInfo.VERSION;
+    }
+
+    /**
+     * @returns Number
+     */
+    getProtocol(){
+        return MinecraftInfo.PROTOCOL;
     }
 
     /**
@@ -132,6 +133,13 @@ class Server {
      */
     getApiVersion(){
         return this.PocketNode.API_VERSION;
+    }
+
+    /**
+     * @returns {CommandMap}
+     */
+    getCommandMap(){
+        return this.interfaces.CommandMap;
     }
 
     /**
@@ -212,7 +220,7 @@ class Server {
      * @return {Logger}
      */
     static getLogger(){
-        return new (require("./logger/Logger.js"));
+        return new (require("./logger/Logger"));
     }
     getLogger(){
         return this.logger;
