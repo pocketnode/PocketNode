@@ -1,7 +1,7 @@
 const TimeStamp = require("time-stamp");
 
-const TextFormat = require("../utils/TextFormat.js");
-const TerminalTextFormat = require("../utils/TerminalTextFormat.js");
+const TextFormat = require("../utils/TextFormat");
+const TerminalTextFormat = require("../utils/TerminalTextFormat");
 
 class Logger {
     constructor(){

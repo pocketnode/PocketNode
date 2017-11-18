@@ -73,7 +73,7 @@ class Config {
                 }
                 FileSystem.writeFileSync(this.file, content);
             } catch (e) {
-                let Logger = require("../logger/Logger.js");
+                let Logger = require("../logger/Logger");
                 let logger = new Logger();
                 logger.critical("Couldn't save Config["+this.file+"]: " + e);
             }

@@ -1,4 +1,4 @@
-const TerminalTextFormat = require("./TerminalTextFormat.js");
+const TerminalTextFormat = require("./TerminalTextFormat");
 
 const TextFormat = {};
 TextFormat.ESCAPE        = "\u00A7";
