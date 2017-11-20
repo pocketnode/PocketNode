@@ -73,11 +73,11 @@ class Server {
 
         this.getLogger().info("Starting Minecraft: PE server on " + this.getIp() + ":" + this.getPort());
         
-        this.interfaces.RakNet = new RakNetServer(this);
+        this.interfaces.RakNet = new RakNetServer(this, new (require("./logger/Logger"))("RakNetServer"));
         this.interfaces.CommandMap = new CommandMap(this);
         this.interfaces.ConsoleCommandReader = new ConsoleCommandReader(this);
 
-        this.getCommandMap().registerCommand(new HelpCommand());
+        this.registerDefaultCommands();
 
         this.getLogger().info("This server is running " + this.getName() + " version " + this.getPocketNodeVersion() + " \"" + this.getCodeName() + "\" (API " + this.getApiVersion() + ")");
         this.getLogger().info("PocketNode is distributed under the GPLv3 License.");
@@ -85,7 +85,12 @@ class Server {
 
         // plugin stuff here
     }
-    
+
+    registerDefaultCommands(){
+        this.getCommandMap().registerCommand(new HelpCommand());
+        this.getCommandMap().registerCommand(new (require("./command/defaults/FakePlayerCommand"))());
+    }
+
     /**
      * @return Boolean
      */
@@ -306,6 +311,7 @@ class Server {
 
     registerPlayer(name, player){
         if(player instanceof Player){
+            if(this.getPlayer(name) !== null) return false;
             this.players.set(name.toLowerCase(), player);
             return true;
         }else{
