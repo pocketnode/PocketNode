@@ -104,6 +104,7 @@ class CommandMap {
     }
 
     dispatchCommand(sender, commandLine) {
+        if(commandLine === "") return;
         commandLine = commandLine.split(" ");
         let cmd = commandLine.shift();
         let args = commandLine;
