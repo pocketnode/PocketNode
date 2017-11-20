@@ -21,9 +21,6 @@ class Player extends CommandSender {
     }
     
     isValidUserName(name){
-        if(name === null){
-            return false;
-        }
         return name.toLowerCase() !== "rcon" && name.toLowerCase() !== "console" && name.length >= 1 && name.length <= 16 && /[^A-Za-z0-9_ ]/.test(name);
     }
 }
