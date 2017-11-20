@@ -7,7 +7,7 @@ class PocketNode {
         this.VERSION = "0.0.1dev";
         this.API_VERSION = "1.0.0";
 
-        let logger = new Logger();
+        let logger = new Logger("Server");
         let paths = {
             file: __dirname + "/../../../",
             data: __dirname + "/../../",
