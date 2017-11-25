@@ -15,3 +15,6 @@ $ node start
 
 ## Discussion
 - [Discord](https://discord.gg/VT928ah)
+
+## Warning
+**This is a freelance project, please dont expect constant development on it. If you'd like to make any contributions please feel free to create a Pull Request. Thanks.**
