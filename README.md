@@ -1,7 +1,8 @@
 # PocketNode
 [![](https://img.shields.io/badge/Chat-On%20Discord-738BD7.svg?style=for-the-badge)](https://discord.gg/VT928ah)
 
-**A server software for Minecraft: Bedrock written in node.js**
+## What's This?
+PocketNode is a server software for Minecraft: Bedrock written in node.js
 
 ## Running
 First Run:
