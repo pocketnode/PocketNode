@@ -2,7 +2,7 @@ const MinecraftInfo = require("./network/minecraft/Info");
 const Config = require("./utils/Config").Config;
 const ConfigTypes = require("./utils/Config").Types;
 
-const RakNetServer = require("../raknet/server/RakNetServer");
+const RakNetServer = require("raknet");
 
 const CommandMap = require("./command/CommandMap");
 const ConsoleCommandReader = require("./command/ConsoleCommandReader");
