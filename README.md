@@ -7,8 +7,7 @@ PocketNode is a server software for Minecraft: Bedrock written in node.js
 ## Running
 First Run:
 ```
-$ git submodule init && git submodule update --recursive --remote
-$ npm install && node start
+$ npm i && node start
 ```
 
 Afterwards:
