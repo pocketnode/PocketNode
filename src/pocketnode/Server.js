@@ -7,6 +7,7 @@ const RakNetServer = require("raknet");
 const CommandMap = require("./command/CommandMap");
 const ConsoleCommandReader = require("./command/ConsoleCommandReader");
 const HelpCommand = require("./command/defaults/HelpCommand");
+const StopCommand = require("./command/defaults/StopCommand");
 
 const Player = require("./Player");
 
@@ -73,7 +74,7 @@ class Server {
 
         this.getLogger().info("Starting Minecraft: PE server on " + this.getIp() + ":" + this.getPort());
         
-        this.interfaces.RakNet = new RakNetServer(this, new (this.getLogger().constructor)("RakNetServer"));
+        this.interfaces.RakNet = new RakNetServer(this, new (this.getLogger().constructor)("RakNet"));
         this.interfaces.CommandMap = new CommandMap(this);
         this.interfaces.ConsoleCommandReader = new ConsoleCommandReader(this);
 
@@ -82,12 +83,14 @@ class Server {
         this.getLogger().info("This server is running " + this.getName() + " version " + this.getPocketNodeVersion() + " \"" + this.getCodeName() + "\" (API " + this.getApiVersion() + ")");
         this.getLogger().info("PocketNode is distributed under the GPLv3 License.");
 
+        this.getLogger().info("Done ("+(new Date().getTime() - this.PocketNode.START_TIME)+"ms)!");
 
         // plugin stuff here
     }
 
     registerDefaultCommands(){
         this.getCommandMap().registerCommand(new HelpCommand());
+        this.getCommandMap().registerCommand(new StopCommand());
         this.getCommandMap().registerCommand(new (require("./command/defaults/FakePlayerCommand"))());
     }
 
@@ -96,6 +99,18 @@ class Server {
      */
     isRunning(){
         return this.isRunning;
+    }
+
+    /**
+     * @return Boolean
+     */
+    shutdown(){
+        if(!this.isRunning) return;
+
+        this.getLogger().info("Shutting down.");
+        this.isRunning = false;
+
+        process.exit(); // fix this later
     }
 
     /**

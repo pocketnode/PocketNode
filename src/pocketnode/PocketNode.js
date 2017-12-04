@@ -2,6 +2,7 @@ const Logger = require("./logger/Logger");
 const Server = require("./Server");
 class PocketNode {
     constructor(){
+        this.START_TIME = new Date().getTime();
         this.NAME = "PocketNode";
         this.CODENAME = "[BEGINNINGS]";
         this.VERSION = "0.0.1dev";
