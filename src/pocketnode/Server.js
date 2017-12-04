@@ -74,7 +74,7 @@ class Server {
 
         this.getLogger().info("Starting Minecraft: PE server on " + this.getIp() + ":" + this.getPort());
         
-        this.interfaces.RakNet = new RakNetServer(this, new (this.getLogger().constructor)("RakNet"));
+        this.interfaces.RakNet = new RakNetServer(this, (new (this.getLogger().constructor)("RakNet")).setDebugging(this.properties.get("is_debugging", false)));
         this.interfaces.CommandMap = new CommandMap(this);
         this.interfaces.ConsoleCommandReader = new ConsoleCommandReader(this);
 

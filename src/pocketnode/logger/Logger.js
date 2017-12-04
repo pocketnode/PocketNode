@@ -79,7 +79,7 @@ class Logger {
 
         message = (color === "" ? message : message + TerminalTextFormat.RESET);
 
-        console.log(TerminalTextFormat.BLUE + "[" + TimeStamp("HH:mm:ss") + "]" + TerminalTextFormat.RESET + " " + color +"[" + this.caller + "] [" + level + "]: " + message);
+        console.log(TerminalTextFormat.BLUE + "[" + TimeStamp("HH:mm:ss") + "]" + TerminalTextFormat.RESET + " " + color +"[" + this.caller + ": " + level + "]: " + message);
     }
 
     setDebugging(tf){
@@ -88,6 +88,8 @@ class Logger {
         }else{
             this.debugging = false;
         }
+
+        return this;
     }
 }
 
