@@ -1,0 +1,23 @@
+{
+  "name": "pocketnode",
+  "version": "1.0.0",
+  "description": "Server software written in Javascript for Minecraft: PE",
+  "main": "start.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "pocketedition",
+    "pe",
+    "mcpe",
+    "minecraftpe",
+    "mcbe"
+  ],
+  "author": "eDroid",
+  "license": "ISC",
+  "dependencies": {
+    "invert-kv": "^1.0.0",
+    "raknet": "git+https://github.com/PocketNode/RakNet.git",
+    "time-stamp": "^2.0.0"
+  }
+}
