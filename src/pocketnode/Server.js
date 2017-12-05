@@ -2,7 +2,7 @@ const MinecraftInfo = require("./network/minecraft/Info");
 const Config = require("./utils/Config").Config;
 const ConfigTypes = require("./utils/Config").Types;
 
-const RakNetServer = require("raknet");
+const RakNetServer = (process.argv.length === 3 && process.argv[2] === "LOCAL" ? require("../../../RakNet") : require("raknet"));
 
 const CommandMap = require("./command/CommandMap");
 const ConsoleCommandReader = require("./command/ConsoleCommandReader");
@@ -108,6 +108,8 @@ class Server {
         if(!this.isRunning) return;
 
         this.getLogger().info("Shutting down.");
+        this.interfaces.RakNet.server.socket.close();
+
         this.isRunning = false;
 
         process.exit(); // fix this later
@@ -348,8 +350,21 @@ class Server {
         return this.banned.ips;
     }
 
-    //todo--rest
-    //todo--broadcast
-    //todo--reload
+    getGamemodeName(){
+        let gamemode = "";
+
+        switch(this.gamemode){
+            default:
+            case 0:
+                gamemode = "Survival";
+                break;
+
+            case 1:
+                gamemode = "Creative";
+                break;
+        }
+
+        return gamemode;
+    }
 }
 module.exports = Server;
