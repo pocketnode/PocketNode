@@ -1,5 +1,5 @@
-const Command = require("../Command");
-const TextFormat = require("../../utils/TextFormat");
+const Command = pocketnode("command/Command");
+const TextFormat = pocketnode("utils/TextFormat");
 
 class HelpCommand extends Command {
     constructor(){

@@ -1,4 +1,4 @@
-const TerminalTextFormat = require("./TerminalTextFormat");
+const TerminalTextFormat = pocketnode("utils/TerminalTextFormat");
 
 const TextFormat = {};
 TextFormat.ESCAPE        = "\u00A7";

@@ -1,16 +1,16 @@
-const MinecraftInfo = require("./network/minecraft/Info");
-const Config = require("./utils/Config").Config;
-const ConfigTypes = require("./utils/Config").Types;
-const PluginLoader = require("./plugin/PluginLoader");
+const MinecraftInfo = pocketnode("network/minecraft/Info");
+const Config = pocketnode("utils/Config").Config;
+const ConfigTypes = pocketnode("utils/Config").Types;
+const PluginLoader = pocketnode("plugin/PluginLoader");
 
 const RakNetServer = (process.argv.length === 3 && process.argv[2] === "LOCAL" ? require("../../../RakNet") : require("raknet"));
 
-const CommandMap = require("./command/CommandMap");
-const ConsoleCommandReader = require("./command/ConsoleCommandReader");
-const HelpCommand = require("./command/defaults/HelpCommand");
-const StopCommand = require("./command/defaults/StopCommand");
+const CommandMap = pocketnode("command/CommandMap");
+const ConsoleCommandReader = pocketnode("command/ConsoleCommandReader");
+const HelpCommand = pocketnode("command/defaults/HelpCommand");
+const StopCommand = pocketnode("command/defaults/StopCommand");
 
-const Player = require("./Player");
+const Player = pocketnode("Player");
 
 const FileSystem = require("fs");
 
@@ -86,7 +86,7 @@ class Server {
 
         this.plugins = new PluginLoader(this.getDataPath() + "plugins/", this);
 
-        this.getLogger().info("Done ("+(new Date().getTime() - this.PocketNode.START_TIME)+"ms)!");
+        this.getLogger().info("Done ("+(Date.now() - this.PocketNode.START_TIME)+"ms)!");
 
         // plugin stuff here
     }
@@ -94,7 +94,7 @@ class Server {
     registerDefaultCommands(){
         this.getCommandMap().registerCommand(new HelpCommand());
         this.getCommandMap().registerCommand(new StopCommand());
-        this.getCommandMap().registerCommand(new (require("./command/defaults/FakePlayerCommand"))());
+        this.getCommandMap().registerCommand(new (pocketnode("command/defaults/FakePlayerCommand"))());
     }
 
     /**
@@ -245,7 +245,7 @@ class Server {
      * @return {Logger}
      */
     static getLogger(){
-        return new (require("./logger/Logger"));
+        return new (pocketnode("logger/Logger"));
     }
     getLogger(){
         return this.logger;

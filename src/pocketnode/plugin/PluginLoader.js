@@ -10,7 +10,7 @@ class PluginLoader {
     }
 
     loadPlugins(directory){
-        let Logger = require("../logger/Logger");
+        let Logger = pocketnode("logger/Logger");
         let logger = new Logger("Server");
         let pluginList = [];
         let plugins = [];

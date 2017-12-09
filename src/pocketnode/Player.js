@@ -1,4 +1,4 @@
-const CommandSender = require("./command/CommandSender");
+const CommandSender = pocketnode("command/CommandSender");
 
 class Player extends CommandSender {
     initVars(){
