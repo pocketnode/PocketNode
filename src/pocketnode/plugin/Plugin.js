@@ -10,13 +10,16 @@ class Plugin {
         this.arguments = [];
     }
 
-    constructor(name, description, permission, aliases, server){
+    constructor(name, description, permission, aliases, server, version, api, author){
         this.initVars();
         this.name = name;
         this.description = description;
         this.permission = permission;
         this.aliases = aliases || [];
         this.server = server;
+        this.version = version;
+        this.api = api;
+        this.author = author;
     }
 
     getName(){
