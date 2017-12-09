@@ -1,5 +1,5 @@
 const readline = require('readline');
-const ConsoleCommandSender = require("./ConsoleCommandSender");
+const ConsoleCommandSender = pocketnode("command/ConsoleCommandSender");
 
 class ConsoleCommandReader {
     constructor(Server){

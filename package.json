@@ -1,6 +1,6 @@
 {
   "name": "pocketnode",
-  "version": "1.0.0",
+  "version": "0.0.2",
   "description": "Server software written in Javascript for Minecraft: PE",
   "main": "start.js",
   "scripts": {
@@ -16,7 +16,6 @@
   "author": "eDroid",
   "license": "ISC",
   "dependencies": {
-    "invert-kv": "^1.0.0",
     "raknet": "git+https://github.com/PocketNode/RakNet.git",
     "time-stamp": "^2.0.0"
   }

@@ -1,7 +1,7 @@
-const Command = require("./Command");
-const Plugin = require("../plugin/Plugin");
-const CommandSender = require("./CommandSender");
-const InvalidParameterError = require("../error/InvalidParameterError");
+const Command = pocketnode("command/Command");
+const Plugin = pocketnode("plugin/Plugin");
+const CommandSender = pocketnode("command/CommandSender");
+const InvalidParameterError = pocketnode("error/InvalidParameterError");
 
 class CommandMap {
     initVars(){

@@ -73,7 +73,7 @@ class Config {
                 }
                 FileSystem.writeFileSync(this.file, content);
             } catch (e) {
-                let Logger = require("../logger/Logger");
+                let Logger = pocketnode("logger/Logger");
                 let logger = new Logger("Server");
                 logger.critical("Couldn't save Config["+this.file+"]: " + e);
             }

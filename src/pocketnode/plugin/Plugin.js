@@ -1,4 +1,4 @@
-const TextFormat = require("../utils/TextFormat");
+const TextFormat = pocketnode("utils/TextFormat");
 
 class Plugin {
     initVars(){

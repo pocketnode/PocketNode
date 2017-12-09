@@ -1,5 +1,5 @@
-const CommandSender = require("./CommandSender");
-const TerminalTextFormat = require("../utils/TerminalTextFormat");
+const CommandSender = pocketnode("command/CommandSender");
+const TerminalTextFormat = pocketnode("utils/TerminalTextFormat");
 
 class ConsoleCommandSender extends CommandSender {
     constructor(server){

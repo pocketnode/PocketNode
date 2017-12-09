@@ -1,5 +1,5 @@
-const Command = require("../Command");
-const Player = require("../../Player");
+const Command = pocketnode("command/Command");
+const Player = pocketnode("Player");
 
 class FakePlayerCommand extends Command {
     constructor(){
