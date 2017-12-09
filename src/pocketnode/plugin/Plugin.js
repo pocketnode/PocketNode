@@ -1,6 +1,6 @@
 const TextFormat = require("../utils/TextFormat");
 
-class Command {
+class Plugin {
     initVars(){
         this.name = "";
         this.description = "";
@@ -10,12 +10,13 @@ class Command {
         this.arguments = [];
     }
 
-    constructor(name, description, permission, aliases){
+    constructor(name, description, permission, aliases, server){
         this.initVars();
         this.name = name;
         this.description = description;
         this.permission = permission;
         this.aliases = aliases || [];
+        this.server = server;
     }
 
     getName(){
@@ -85,4 +86,4 @@ class Command {
     execute(sender, args){}
 }
 
-module.exports = Command;
+module.exports = Plugin;

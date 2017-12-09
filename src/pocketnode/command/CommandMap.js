@@ -1,4 +1,5 @@
 const Command = require("./Command");
+const Plugin = require("../plugin/Plugin");
 const CommandSender = require("./CommandSender");
 const InvalidParameterError = require("../error/InvalidParameterError");
 
@@ -23,7 +24,7 @@ class CommandMap {
     }
 
     registerCommand(command){
-        if(command instanceof Command){
+        if(command instanceof Command || command instanceof Plugin){
             if(!this.commandExists(command.getName())){
                 this.commands.set(command.getName(), command);
                 command.getAliases().forEach(alias => {

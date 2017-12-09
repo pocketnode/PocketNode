@@ -36,7 +36,7 @@ class Config {
                     case ConfigTypes.JSON:
                         this.config = JSON.parse(content);
                         break;
-                    
+
                     default:
                         this.correct = false;
                         return false;
