@@ -30,7 +30,7 @@ class PluginLoader {
             if(FileSystem.existsSync(location + "manifest.json")) {
                 var manifest = JSON.parse(FileSystem.readFileSync(location + "manifest.json").toString());
                 manifest = this.checkManifest(manifest);
-                plugins[i] = new plugins[i](manifest.name, manifest.description, manifest.permission, manifest.aliases, this.server);
+                plugins[i] = new plugins[i](manifest.name, manifest.description, manifest.permission, manifest.aliases, this.server, manifest.version, manifest.api, manifest.author);
                 this.server.getCommandMap().registerCommand(plugins[i]);
                 if(plugins[i].onEnable != null) {
                     plugins[i].onEnable();
