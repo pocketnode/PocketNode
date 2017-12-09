@@ -1,6 +1,7 @@
 const MinecraftInfo = require("./network/minecraft/Info");
 const Config = require("./utils/Config").Config;
 const ConfigTypes = require("./utils/Config").Types;
+const PluginLoader = require("./plugin/PluginLoader");
 
 const RakNetServer = (process.argv.length === 3 && process.argv[2] === "LOCAL" ? require("../../../RakNet") : require("raknet"));
 
@@ -73,7 +74,7 @@ class Server {
         this.banned.ips = new Config(this.getDataPath() + "banned-ips.json", ConfigTypes.JSON);
 
         this.getLogger().info("Starting Minecraft: PE server on " + this.getIp() + ":" + this.getPort());
-        
+
         this.interfaces.RakNet = new RakNetServer(this, (new (this.getLogger().constructor)("RakNet")).setDebugging(this.properties.get("is_debugging", false)));
         this.interfaces.CommandMap = new CommandMap(this);
         this.interfaces.ConsoleCommandReader = new ConsoleCommandReader(this);
@@ -82,6 +83,8 @@ class Server {
 
         this.getLogger().info("This server is running " + this.getName() + " version " + this.getPocketNodeVersion() + " \"" + this.getCodeName() + "\" (API " + this.getApiVersion() + ")");
         this.getLogger().info("PocketNode is distributed under the GPLv3 License.");
+
+        this.plugins = new PluginLoader(this.getDataPath() + "plugins/", this);
 
         this.getLogger().info("Done ("+(new Date().getTime() - this.PocketNode.START_TIME)+"ms)!");
 
@@ -187,13 +190,13 @@ class Server {
 
     /**
      * Returns whether the server requires players to be authenticated to Xbox Live.
-     * 
+     *
      * @return Boolean
      */
     getOnlineMode(){
         return this.onlineMode;
     }
-    
+
     /**
      * Alias of this.getOnlineMode()
      *
@@ -202,7 +205,7 @@ class Server {
     requiresAuthentication(){
         return this.getOnlineMode();
     }
-    
+
     /**
      * @return String
      */
@@ -223,14 +226,14 @@ class Server {
     getServerId(){
         return this.serverId;
     }
-    
+
     /**
      * @return Boolean
      */
     hasWhitelist(){
         return this.properties.get("whitelist", false);
     }
-    
+
     /**
      * @return String
      */
@@ -264,12 +267,12 @@ class Server {
 
     /**
      * @param name String
-     * 
+     *
      * @return {Player}
      */
     getPlayer(name){
         name = name.toLowerCase();
-        
+
         let found = null;
         let delta = 20; // estimate nametag length
 
@@ -291,7 +294,7 @@ class Server {
 
     /**
      * @param name String
-     * 
+     *
      * @return {Player}
      */
     getPlayerExact(name){
@@ -335,7 +338,7 @@ class Server {
             return false;
         }
     }
-    
+
     /**
      * @return {Config}
      */
