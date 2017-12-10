@@ -4,9 +4,10 @@ const TextFormat = pocketnode("utils/TextFormat");
 const TerminalTextFormat = pocketnode("utils/TerminalTextFormat");
 
 class Logger {
-    constructor(caller){
+    constructor(caller, subcaller){
         this.debugging = false;
         this.caller = caller;
+        this.subcaller = subcaller || "";
     }
 
     emergency(message){
@@ -79,7 +80,7 @@ class Logger {
 
         message = (color === "" ? message : message + TerminalTextFormat.RESET);
 
-        console.log(TerminalTextFormat.BLUE + "[" + TimeStamp("HH:mm:ss") + "]" + TerminalTextFormat.RESET + " " + color +"[" + this.caller + " > " + level + "]: " + message);
+        console.log(TerminalTextFormat.BLUE + "[" + TimeStamp("HH:mm:ss") + "]" + TerminalTextFormat.RESET + " " + color +"[" + this.caller + " > " + level + "]: " + this.subcaller + message);
     }
 
     setDebugging(tf){

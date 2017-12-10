@@ -1,7 +1,9 @@
 const MinecraftInfo = pocketnode("network/minecraft/Info");
 const Config = pocketnode("utils/Config").Config;
 const ConfigTypes = pocketnode("utils/Config").Types;
-const PluginLoader = pocketnode("plugin/PluginLoader");
+
+const PluginManager = pocketnode("plugin/PluginManager");
+const SourcePluginLoader = pocketnode("plugin/SourcePluginLoader");
 
 const RakNetServer = (process.argv.length === 3 && process.argv[2] === "LOCAL" ? require("../../../RakNet") : require("raknet"));
 
@@ -9,6 +11,7 @@ const CommandMap = pocketnode("command/CommandMap");
 const ConsoleCommandReader = pocketnode("command/ConsoleCommandReader");
 const HelpCommand = pocketnode("command/defaults/HelpCommand");
 const StopCommand = pocketnode("command/defaults/StopCommand");
+const SayCommand = pocketnode("command/defaults/SayCommand");
 
 const Player = pocketnode("Player");
 
@@ -76,15 +79,19 @@ class Server {
         this.getLogger().info("Starting Minecraft: PE server on " + this.getIp() + ":" + this.getPort());
 
         this.interfaces.RakNet = new RakNetServer(this, (new (this.getLogger().constructor)("RakNet")).setDebugging(this.properties.get("is_debugging", false)));
+
         this.interfaces.CommandMap = new CommandMap(this);
         this.interfaces.ConsoleCommandReader = new ConsoleCommandReader(this);
+
+        this.interfaces.PluginManager = new PluginManager(this);
+        this.interfaces.PluginManager.registerLoader(SourcePluginLoader);
+        this.interfaces.PluginManager.loadPlugins(this.getPluginPath());
+        this.interfaces.PluginManager.enablePlugins();
 
         this.registerDefaultCommands();
 
         this.getLogger().info("This server is running " + this.getName() + " version " + this.getPocketNodeVersion() + " \"" + this.getCodeName() + "\" (API " + this.getApiVersion() + ")");
         this.getLogger().info("PocketNode is distributed under the GPLv3 License.");
-
-        this.plugins = new PluginLoader(this.getDataPath() + "plugins/", this);
 
         this.getLogger().info("Done ("+(Date.now() - this.PocketNode.START_TIME)+"ms)!");
 
@@ -94,7 +101,8 @@ class Server {
     registerDefaultCommands(){
         this.getCommandMap().registerCommand(new HelpCommand());
         this.getCommandMap().registerCommand(new StopCommand());
-        this.getCommandMap().registerCommand(new (pocketnode("command/defaults/FakePlayerCommand"))());
+        this.getCommandMap().registerCommand(new SayCommand());
+        this.getCommandMap().registerCommand(new (pocketnode("command/defaults/ListCommand"))());
     }
 
     /**
@@ -112,6 +120,7 @@ class Server {
 
         this.getLogger().info("Shutting down.");
         this.interfaces.RakNet.server.socket.close();
+        this.interfaces.PluginManager.disablePlugins();
 
         this.isRunning = false;
 
