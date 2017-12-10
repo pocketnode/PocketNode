@@ -1,92 +1,66 @@
-const TextFormat = pocketnode("utils/TextFormat");
+const ClassHasMethod = pocketnode("utils/methods/ClassHasMethod");
 
 class Plugin {
-    initVars(){
-        this.name = "";
-        this.description = "";
-        this.permission = "";
-        this.usage = "";
-        this.aliases = [];
-        this.arguments = [];
+    constructor(){
+        let methods = [
+            // Called when the plugin is loaded
+            "onLoad",
+
+            // Called when the plugin is enabled
+            "onEnable",
+
+            // Called when the plugin is disabled
+            "onDisable",
+
+            // @return Boolean
+            "isEnabled",
+            "isDisabled",
+
+            // Gets the plugin's data folder to save files
+            // @return String
+            "getDataFolder",
+
+            // @return PluginManifest
+            "getManifest",
+
+            // Gets a resource from the plugin's resources folder
+            // @param name String
+            "getResource",
+
+            // Saves a resource from the plugin's resources folder to it's data folder
+            // @param name String
+            // @param replace Boolean
+            // @return Boolean
+            "saveResource",
+
+            // @return Config
+            "getConfig",
+
+            "saveConfig",
+
+            // @return Boolean
+            "saveDefaultConfig",
+
+            "reloadConfig",
+
+            // @return Server
+            "getServer",
+
+            // @return String
+            "getName",
+
+            // @return PluginLogger
+            "getLogger",
+
+            // @return PluginLoader
+            "getPluginLoader"
+        ];
+
+        let missingMethods;
+        if((missingMethods = ClassHasMethod(this.constructor, methods)) !== true){
+            throw new Error("Plugin is missing the following method(s): " + missingMethods.join(", "));
+        }
     }
-
-    constructor(name, description, permission, aliases, server, version, api, author){
-        this.initVars();
-        this.name = name;
-        this.description = description;
-        this.permission = permission;
-        this.aliases = aliases || [];
-        this.server = server;
-        this.version = version;
-        this.api = api;
-        this.author = author;
-    }
-
-    getName(){
-        return this.name;
-    }
-
-    getDescription(){
-        return this.description;
-    }
-
-    getUsage(){
-        let usage = TextFormat.RED + "Usage: /" + this.getName() + " ";
-
-        this.getArguments().forEach(argument => {
-            if(argument.isRequired()){
-                usage += "<";
-            }else{
-                usage += "[";
-            }
-
-            usage += argument.getName() + ": " + argument.getType();
-
-            if(argument.isRequired()){
-                usage += ">";
-            }else{
-                usage += "]";
-            }
-
-            usage += " ";
-        });
-
-
-        return usage;
-    }
-
-    getPermission(){
-        return this.permission;
-    }
-
-    getAliases(){
-        return this.aliases;
-    }
-
-    // testPermission
-
-    addArgument(name, type, isRequired){
-        this.arguments.push({
-            name: name,
-            type: type,
-            required: isRequired,
-            getName: function(){
-                return this.name;
-            },
-            getType: function(){
-                return this.type;
-            },
-            isRequired: function(){
-                return this.required;
-            }
-        });
-    }
-
-    getArguments(){
-        return this.arguments;
-    }
-
-    execute(sender, args){}
 }
 
 module.exports = Plugin;
