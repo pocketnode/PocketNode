@@ -16,6 +16,7 @@
   "author": "eDroid",
   "license": "ISC",
   "dependencies": {
+    "bundle-js": "^1.0.0",
     "raknet": "git+https://github.com/PocketNode/RakNet.git",
     "time-stamp": "^2.0.0"
   }

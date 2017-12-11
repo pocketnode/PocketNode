@@ -11,7 +11,8 @@ const CommandMap = pocketnode("command/CommandMap");
 const ConsoleCommandReader = pocketnode("command/ConsoleCommandReader");
 const HelpCommand = pocketnode("command/defaults/HelpCommand");
 const StopCommand = pocketnode("command/defaults/StopCommand");
-const SayCommand = pocketnode("command/defaults/SayCommand");
+const MakePlugin = pocketnode("command/defaults/MakePlugin");
+//const SayCommand = pocketnode("command/defaults/SayCommand");
 
 const Player = pocketnode("Player");
 
@@ -101,8 +102,9 @@ class Server {
     registerDefaultCommands(){
         this.getCommandMap().registerCommand(new HelpCommand());
         this.getCommandMap().registerCommand(new StopCommand());
-        this.getCommandMap().registerCommand(new SayCommand());
-        this.getCommandMap().registerCommand(new (pocketnode("command/defaults/ListCommand"))());
+        this.getCommandMap().registerCommand(new MakePlugin());
+        //this.getCommandMap().registerCommand(new SayCommand());
+        //this.getCommandMap().registerCommand(new (pocketnode("command/defaults/ListCommand"))());
     }
 
     /**
