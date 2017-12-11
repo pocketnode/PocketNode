@@ -9,6 +9,14 @@ class ConsoleCommandSender extends CommandSender {
     sendMessage(message){
         this.server.getLogger().log("Command", message, TerminalTextFormat.WHITE);
     }
+
+    getName(){
+        return "CONSOLE";
+    }
+
+    isOp(){
+        return true;
+    }
 }
 
 module.exports = ConsoleCommandSender;

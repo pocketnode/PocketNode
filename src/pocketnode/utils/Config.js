@@ -31,7 +31,7 @@ class Config {
             if(this.type === ConfigTypes.DETECT){}
 
             if(this.correct === true){
-                let content = FileSystem.readFileSync(this.file);
+                let content = FileSystem.readFileSync(this.file, {encoding: "utf-8"});
                 switch(this.type){
                     case ConfigTypes.JSON:
                         this.config = JSON.parse(content);
@@ -120,6 +120,10 @@ class Config {
 
     fillDefaults(def, data){
         return Object.assign({}, def, data);
+    }
+
+    setDefaults(def){
+        this.config = this.fillDefaults(def, this.config);
     }
 }
 

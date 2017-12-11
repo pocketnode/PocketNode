@@ -1,5 +1,4 @@
 const Command = pocketnode("command/Command");
-const Plugin = pocketnode("plugin/Plugin");
 const CommandSender = pocketnode("command/CommandSender");
 const InvalidParameterError = pocketnode("error/InvalidParameterError");
 
@@ -24,7 +23,7 @@ class CommandMap {
     }
 
     registerCommand(command){
-        if(command instanceof Command || command instanceof Plugin){
+        if(command instanceof Command){
             if(!this.commandExists(command.getName())){
                 this.commands.set(command.getName(), command);
                 command.getAliases().forEach(alias => {
