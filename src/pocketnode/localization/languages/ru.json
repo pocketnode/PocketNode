@@ -1,0 +1,15 @@
+{
+  "language-code" : "ru",
+  "content" : {
+    "loading" : "Загрузка PocketNode...",
+    "language" : "Установка языка ru (русский)",
+    "starting-pocketnode" : "Запуск {{name}}, сервер Minecraft: Bedrock Edition для версии {{version}}",
+    "loading-properties" : "Загрузка свойств сервера...",
+    "starting-server" : "Запуск Minecraft: PE сервера на {{ip}}: {{port}}",
+    "loading-plugin" : "Запуск {{plugin}",
+    "enabling-plugin" : "Включение {{plugin}}",
+    "server-info" : "На этом сервере запущена {{name}} версия {{version}} \"{{version-name}}\" (API {{api}})",
+    "license" : "PocketNode распространяется под лицензией GPLv3",
+    "done" : "Готово ({{time}} мс)!"
+  }
+}

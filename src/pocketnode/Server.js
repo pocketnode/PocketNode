@@ -11,7 +11,8 @@ const CommandMap = pocketnode("command/CommandMap");
 const ConsoleCommandReader = pocketnode("command/ConsoleCommandReader");
 const HelpCommand = pocketnode("command/defaults/HelpCommand");
 const StopCommand = pocketnode("command/defaults/StopCommand");
-const SayCommand = pocketnode("command/defaults/SayCommand");
+const MakePlugin = pocketnode("command/defaults/MakePlugin");
+//const SayCommand = pocketnode("command/defaults/SayCommand");
 
 const Player = pocketnode("Player");
 
@@ -36,10 +37,14 @@ class Server {
 
         this.levels = new Map();
         this.players = new Map();
+
+        this.localizationManager
     }
 
-    constructor(PocketNode, logger, paths){
+    constructor(PocketNode, localizationManager, logger, paths){
         this.initVars();
+
+        this.localizationManager = localizationManager;
 
         this.PocketNode = PocketNode;
         this.logger = logger;
@@ -57,9 +62,10 @@ class Server {
             FileSystem.mkdirSync(this.paths.plugins);
         }
 
-        this.getLogger().info("Starting " + this.getName() + " a Minecraft: Bedrock Edition server for version " + this.getVersion());
+        this.getLogger().info(localizationManager.getPhrase("language"));
+        this.getLogger().info(localizationManager.getPhrase("starting-pocketnode").replace("{{name}}", this.getName()).replace("{{version}}", this.getVersion()));
 
-        this.getLogger().info("Loading server properties...");
+        this.getLogger().info(localizationManager.getPhrase("loading-properties"));
         this.properties = new Config(this.getDataPath() + "server.properties.json", ConfigTypes.JSON, {
             motd: this.getName() + " Server",
             ip: "0.0.0.0",
@@ -76,7 +82,7 @@ class Server {
         this.banned.names = new Config(this.getDataPath() + "banned-names.json", ConfigTypes.JSON);
         this.banned.ips = new Config(this.getDataPath() + "banned-ips.json", ConfigTypes.JSON);
 
-        this.getLogger().info("Starting Minecraft: PE server on " + this.getIp() + ":" + this.getPort());
+        this.getLogger().info(localizationManager.getPhrase("starting-server").replace("{{ip}}", this.getIp()).replace("{{port}}", this.getPort()));
 
         this.interfaces.RakNet = new RakNetServer(this, (new (this.getLogger().constructor)("RakNet")).setDebugging(this.properties.get("is_debugging", false)));
 
@@ -90,10 +96,10 @@ class Server {
 
         this.registerDefaultCommands();
 
-        this.getLogger().info("This server is running " + this.getName() + " version " + this.getPocketNodeVersion() + " \"" + this.getCodeName() + "\" (API " + this.getApiVersion() + ")");
-        this.getLogger().info("PocketNode is distributed under the GPLv3 License.");
+        this.getLogger().info(localizationManager.getPhrase("server-info").replace("{{name}}", this.getName()).replace("{{version}}", this.getPocketNodeVersion()).replace("{{version-name}}", this.getCodeName()).replace("{{api}}", this.getApiVersion()));
+        this.getLogger().info(localizationManager.getPhrase("license"));
 
-        this.getLogger().info("Done ("+(Date.now() - this.PocketNode.START_TIME)+"ms)!");
+        this.getLogger().info(localizationManager.getPhrase("done").replace("{{time}}", Date.now() - this.PocketNode.START_TIME));
 
         // plugin stuff here
     }
@@ -101,8 +107,9 @@ class Server {
     registerDefaultCommands(){
         this.getCommandMap().registerCommand(new HelpCommand());
         this.getCommandMap().registerCommand(new StopCommand());
-        this.getCommandMap().registerCommand(new SayCommand());
-        this.getCommandMap().registerCommand(new (pocketnode("command/defaults/ListCommand"))());
+        this.getCommandMap().registerCommand(new MakePlugin());
+        //this.getCommandMap().registerCommand(new SayCommand());
+        //this.getCommandMap().registerCommand(new (pocketnode("command/defaults/ListCommand"))());
     }
 
     /**
