@@ -4,6 +4,11 @@ global.pocketnode = function(path){
 
 const Logger = pocketnode("logger/Logger");
 const Server = pocketnode("Server");
+
+const Config = pocketnode("utils/Config").Config;
+const ConfigTypes = pocketnode("utils/Config").Types;
+
+const localizationManager = pocketnode("localization/localizationManager");
 class PocketNode {
     constructor(){
         this.START_TIME = Date.now();
@@ -19,9 +24,23 @@ class PocketNode {
             plugins: __dirname + "/../../plugins/"
         };
 
-        logger.info("Loading PocketNode...");
+        this.properties = new Config(paths.data + "server.properties.json", ConfigTypes.JSON, {
+            language: "en",
+            motd: this.NAME + " Server",
+            ip: "0.0.0.0",
+            port: 19132,
+            whitelist: false,
+            max_players: 20,
+            gamemode: 0,
+            is_debugging: false
+        });
 
-        new Server(this, logger, paths);
+        this.localizationManager = new localizationManager(this.properties.get("language", false));
+        this.localizationManager.loadLanguages();
+
+        logger.info(this.localizationManager.getPhrase("loading"));
+
+        new Server(this, this.localizationManager, logger, paths);
     }
 }
 

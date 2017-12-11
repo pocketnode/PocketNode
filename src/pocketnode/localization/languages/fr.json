@@ -1,0 +1,15 @@
+{
+  "language-code" : "fr",
+  "content" : {
+    "loading" : "Chargement PocketNode...",
+    "language" : "Réglage de la langue en fr (français)",
+    "starting-pocketnode" : "Lancement de {{name}}, un serveur Minecraft: Bedrock Edition pour la version {{version}}",
+    "loading-properties" : "Chargement des propriétés du serveur...",
+    "starting-server" : "Démarrage de Minecraft: serveur PE sur {{ip}}: {{port}}",
+    "loading-plugin" : "Chargement {{plugin}}",
+    "enabling-plugin" : "Activation de {{plugin}}",
+    "server-info" : "Ce serveur exécute {{name}} la version {{version}} \"{{version-name}}\" (API {{api}})",
+    "license" : "PocketNode est distribué sous la licence GPLv3",
+    "done" : "Terminé ({{time}} ms)!"
+  }
+}
