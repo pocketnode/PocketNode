@@ -1,5 +1,5 @@
 const Info = {};
-Info.VERSION = "1.2.5";
-Info.PROTOCOL = 141;
+Info.VERSION = "1.2.6";
+Info.PROTOCOL = 150;
 
 module.exports = Info;
