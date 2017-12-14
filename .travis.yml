@@ -8,4 +8,4 @@ script:
 
 notifications:
   email: false
-  #webhooks: https://edroid.tk/projects/travis-to-discord/webhook.php?webhook=${DISCORD_WEBHOOK}
+  webhooks: https://edroid.tk/projects/pocketnode/travis-ci.php
