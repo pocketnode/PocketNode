@@ -6,3 +6,6 @@ node_js:
 
 script:
   node start
+
+notifications:
+  email: false
