@@ -107,7 +107,7 @@ class PluginManager {
                             plugins.set(name, file);
                         }
                     }catch(e){
-                        this.server.getLogger().error("Error loading plugin! Error: " + e);
+                        this.server.getLogger().error("There was an error loading a plugin.", e);
                     }
                 });
             }
