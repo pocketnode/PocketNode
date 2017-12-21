@@ -21,7 +21,10 @@ class PocketNode {
 
         logger.info("Loading PocketNode...");
 
-        new Server(this, logger, paths);
+        let server = new Server(this, logger, paths);
+        if(process.argv.join(" ").indexOf("--travis-build") !== -1){
+            server.shutdown();
+        }
     }
 }
 

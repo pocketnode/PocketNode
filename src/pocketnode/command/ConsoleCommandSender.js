@@ -1,5 +1,4 @@
 const CommandSender = pocketnode("command/CommandSender");
-const TerminalTextFormat = pocketnode("utils/TerminalTextFormat");
 
 class ConsoleCommandSender extends CommandSender {
     constructor(server){
@@ -7,7 +6,7 @@ class ConsoleCommandSender extends CommandSender {
     }
 
     sendMessage(message){
-        this.server.getLogger().log("Command", message, TerminalTextFormat.WHITE);
+        this.server.getLogger().info(message);
     }
 
     getName(){

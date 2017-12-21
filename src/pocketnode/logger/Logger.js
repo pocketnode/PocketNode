@@ -10,77 +10,57 @@ class Logger {
         this.subcaller = subcaller || "";
     }
 
-    emergency(message){
-        return this.log("Emergency", message);
+    emergency(){
+        return this.log("Emergency", arguments, TerminalTextFormat.RED);
     }
 
-    alert(message){
-        return this.log("Alert", message);
+    alert(){
+        return this.log("Alert", arguments, TerminalTextFormat.RED);
     }
 
-    critical(message){
-        return this.log("Critical", message);
+    critical(){
+        return this.log("Critical", arguments, TerminalTextFormat.RED);
     }
 
-    error(message){
-        return this.log("Error", message);
+    error(){
+        return this.log("Error", arguments, TerminalTextFormat.DARK_RED);
     }
 
-    warning(message){
-        return this.log("Warning", message);
+    warning(){
+        return this.log("Warning", arguments, TerminalTextFormat.YELLOW);
     }
 
-    notice(message){
-        return this.log("Notice", message);
+    notice(){
+        return this.log("Notice", arguments, TerminalTextFormat.AQUA);
     }
 
-    info(message){
-        return this.log("Info", message);
+    info(){
+        return this.log("Info", arguments, TerminalTextFormat.WHITE);
     }
 
-    debug(message){
+    debug(){
         if(!this.debugging) return;
-        return this.log("Debug", message);
+        return this.log("Debug", arguments, TerminalTextFormat.GRAY);
     }
 
     /**
-     * @param level   String
-     * @param message String
-     * @param color   TerminalTextFormat.COLOR
+     * @param level    String
+     * @param messages Array
+     * @param color    TerminalTextFormat.COLOR
      */
-    log(level, message, color){
-        message = TextFormat.toTerminal(message);
-        color = color || "";
+    log(level, messages, color){
+        if(messages.length === 0) return;
+        color = color || TerminalTextFormat.GRAY;
 
-        if(color === "") {
-            switch(level.toLowerCase()) {
-                case "emergency":
-                case "alert":
-                case "critical":
-                    color = TerminalTextFormat.RED;
-                    break;
-                case "error":
-                    color = TerminalTextFormat.DARK_RED;
-                    break;
-                case "warning":
-                    color = TerminalTextFormat.YELLOW;
-                    break;
-                case "notice":
-                    color = TerminalTextFormat.AQUA;
-                    break;
-                case "info":
-                    color = TerminalTextFormat.WHITE;
-                    break;
-                case "debug":
-                default:
-                    color = TerminalTextFormat.GRAY;
-                    break;
-            }
-        }
+        Array.from(messages).map(Logger.formatError).join(" ").split("\n").forEach(message => {
+            message = TextFormat.toTerminal(message) + TerminalTextFormat.RESET;
+            console.log(TerminalTextFormat.BLUE + "[" + TimeStamp("HH:mm:ss") + "]" + TerminalTextFormat.RESET + " " + color +"[" + this.caller + " > " + level + "]: " + this.subcaller + message);
+        });        
+    }
 
-        message = (color === "" ? message : message + TerminalTextFormat.RESET);
-
-        console.log(TerminalTextFormat.BLUE + "[" + TimeStamp("HH:mm:ss") + "]" + TerminalTextFormat.RESET + " " + color +"[" + this.caller + " > " + level + "]: " + this.subcaller + message);
+    static formatError(e){
+        if(!(e instanceof Error)) return e;
+        return e.stack;
     }
 
     setDebugging(tf){

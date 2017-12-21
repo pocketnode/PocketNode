@@ -50,7 +50,6 @@ class PluginManager {
                             this.plugins.set(plugin.getName(), plugin);
                             return plugin;
                         }
-                        console.log(plugin);
                     }catch(e){
                         this.server.getLogger().critical("Error trying to load " + manifest.getName() + ": " + e);
                         return null;
@@ -108,7 +107,7 @@ class PluginManager {
                             plugins.set(name, file);
                         }
                     }catch(e){
-                        this.server.getLogger().error("Error loading plugin! Error: " + e);
+                        this.server.getLogger().error("There was an error loading a plugin.", e);
                     }
                 });
             }
@@ -121,7 +120,6 @@ class PluginManager {
                         loadedPlugins.set(name, plugin);
                     }else{
                         this.server.getLogger().critical("Unable to load plugin: " + name);
-                        console.log(plugin);
                     }
                 }
             }
