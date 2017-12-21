@@ -1,0 +1,12 @@
+{
+  "opts": {
+    "recurse": true,
+    "destination": "./docs/",
+  },
+  "plugins": [ "plugins/markdown" ],
+  "templates": {
+    "default": {
+      "outputSourceFiles": false
+    }
+  }
+}
