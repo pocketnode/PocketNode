@@ -18,5 +18,8 @@
   "dependencies": {
     "raknet": "git+https://github.com/PocketNode/RakNet.git",
     "time-stamp": "^2.0.0"
+  },
+  "devDependencies": {
+    "jsdoc": "^3.4.0"
   }
 }
