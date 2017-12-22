@@ -91,7 +91,7 @@ class Server {
         this.banned.names = new Config(this.getDataPath() + "banned-names.json", ConfigTypes.JSON);
         this.banned.ips = new Config(this.getDataPath() + "banned-ips.json", ConfigTypes.JSON);
 
-        process.title = this.getName() + " " + this.getPocketNodeVersion();
+        process.stdout.write("\x1b]0;" + this.getName() + " " + this.getPocketNodeVersion() + "\x07");
 
         this.getLogger().debug("Server id:", this.serverId);
 
@@ -149,9 +149,6 @@ class Server {
         return this.running;
     }
 
-    /**
-     * @return Boolean
-     */
     shutdown(){
         if(!this.running) return;
 
@@ -271,7 +268,7 @@ class Server {
     }
 
     /**
-     * @return Boolean
+     * @return Number
      */
     getServerId(){
         return this.serverId;
@@ -404,7 +401,7 @@ class Server {
     }
 
     getGamemodeName(){
-        let gamemode = "";
+        let gamemode;
 
         switch(this.gamemode){
             default:
@@ -470,11 +467,13 @@ class Server {
     }
 
     titleTick(){
-        process.title = this.getName() + " " +
+        process.stdout.write("\x1b]0;"+
+            this.getName() + " " +
             this.getPocketNodeVersion() + " | " +
             "Online " + this.getOnlinePlayerCount() + "/" + this.getMaxPlayers() + " | " +
             "TPS " + this.getTicksPerSecondAverage() + " | " +
-            "Load " + this.getTickUsageAverage() + "%";
+            "Load " + this.getTickUsageAverage() + "%"
+        +"\x07");
     }
 }
 module.exports = Server;
