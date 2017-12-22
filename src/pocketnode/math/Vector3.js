@@ -81,28 +81,28 @@ class Vector3
 
     getRight()
     {
-		return this.x;
-	}
+        return this.x;
+    }
 
-	getUp()
+    getUp()
     {
-		return this.y;
-	}
+        return this.y;
+    }
 
-	getForward()
+    getForward()
     {
-		return this.z;
-	}
+        return this.z;
+    }
 
-	getSouth()
+    getSouth()
     {
-		return this.x;
-	}
-    
-	getWest()
+        return this.x;
+    }
+
+    getWest()
     {
-		return this.z;
-	}
+        return this.z;
+    }
 
     /**
 	 * @param {Vector3 | number} x
