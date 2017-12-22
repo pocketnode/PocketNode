@@ -65,3 +65,4 @@ server.properties.json
 banned-*.json
 ops.json
 whitelist.json
+docs/
