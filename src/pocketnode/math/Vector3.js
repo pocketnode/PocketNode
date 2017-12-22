@@ -83,18 +83,22 @@ class Vector3
     {
 		return this.x;
 	}
+
 	getUp()
     {
 		return this.y;
 	}
+
 	getForward()
     {
 		return this.z;
 	}
+
 	getSouth()
     {
 		return this.x;
 	}
+    
 	getWest()
     {
 		return this.z;
