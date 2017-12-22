@@ -85,8 +85,8 @@ class Position extends Vector3
         if(level !== null && level.isClosed()){
             //throw new \InvalidArgumentException("Specified level has been unloaded and cannot be used");
         }
-            this.level = level;
-            return this;
+        this.level = level;
+        return this;
     }
 
     /**
