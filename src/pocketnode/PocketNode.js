@@ -1,9 +1,12 @@
+const Path = require("path");
+
 global.pocketnode = function(path){
-    return require(__dirname + "/" + path);
+    return require(__dirname + Path.sep + path);
 };
 
 const Logger = pocketnode("logger/Logger");
 const Server = pocketnode("Server");
+
 class PocketNode {
     constructor(){
         this.START_TIME = Date.now();
@@ -14,9 +17,9 @@ class PocketNode {
 
         let logger = new Logger("Server");
         let paths = {
-            file: __dirname + "/../../../",
-            data: __dirname + "/../../",
-            plugins: __dirname + "/../../plugins/"
+            file: Path.normalize(__dirname + "/../../../"),
+            data: Path.normalize(__dirname + "/../../"),
+            plugins: Path.normalize(__dirname + "/../../plugins/")
         };
 
         logger.info("Loading PocketNode...");
