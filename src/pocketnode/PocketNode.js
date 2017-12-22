@@ -4,7 +4,7 @@ global.pocketnode = function(path){
     return require(__dirname + Path.sep + path);
 };
 
-global.Math.round = function(value, precision, mode) {
+global.Math.php_round = function(value, precision, mode) {
     var m, f, isHalf, sgn // helper variables
     // making sure precision is integer
     precision |= 0

@@ -150,11 +150,11 @@ class Vector3
 		return new Vector3(Math.floor(this.x), Math.floor(this.y), Math.floor(this.z));
 	}
 
-    round(precision = 0, mode = "ROUND_HALF_UP")
+    round(precision = 0, mode = "php_round_HALF_UP")
     {
 		return precision > 0 ?
-			new Vector3(Math.round(this.x, precision, mode), Math.round(this.y, precision, mode), Math.round(this.z, precision, mode)) :
-			new Vector3(Math.round(this.x, precision, mode), Math.round(this.y, precision, mode), Math.round(this.z, precision, mode));
+			new Vector3(Math.php_round(this.x, precision, mode), Math.php_round(this.y, precision, mode), Math.php_round(this.z, precision, mode)) :
+			new Vector3(Math.php_round(this.x, precision, mode), Math.php_round(this.y, precision, mode), Math.php_round(this.z, precision, mode));
 	}
 
     abs()
