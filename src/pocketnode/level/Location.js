@@ -39,7 +39,7 @@ class Location extends Position
     {
 		this.yaw = yaw;
 		this.pitch = pitch;
-		parent.construct(x, y, z, level);
+		super(x, y, z, level);
 	}
 
     /**
@@ -82,9 +82,9 @@ class Location extends Position
 	equals(v)
     {
 		if(v instanceof Location){
-			return parent.equals(v) && v.yaw == this.yaw && v.pitch == this.pitch;
+			return super.equals(v) && v.yaw == this.yaw && v.pitch == this.pitch;
 		}
-		return parent.equals(v);
+		return super.equals(v);
 	}
 
 }

@@ -111,7 +111,7 @@ class Position extends Vector3
 	getSide(side, step = 1)
     {
 		assert(this.isValid());
-		return this.fromObject(parent.getSide(side, step), this.level);
+		return this.fromObject(super.getSide(side, step), this.level);
 	}
 	__toString()
     {
@@ -134,9 +134,9 @@ class Position extends Vector3
 	equals(v)
     {
 		if(v instanceof Position){
-			return parent.equals(v) && v.getLevel() === this.getLevel();
+			return super.equals(v) && v.getLevel() === this.getLevel();
 		}
-		return parent.equals(v);
+		return super.equals(v);
 	}
 
 }
