@@ -27,10 +27,10 @@ class Position extends Vector3
     /**
      * Represents a Vector3 with an added Level reference.
      * @constructor
-	 * @param {int}   x
-	 * @param {int}   y
-	 * @param {int}   z
-	 * @param {Level} level
+	 * @param {Number}   x
+	 * @param {Number}   y
+	 * @param {Number}   z
+	 * @param {Level}    level
      *
 	 */
     constructor(x = 0, y = 0, z = 0, level = null)
@@ -43,100 +43,105 @@ class Position extends Vector3
 
     fromObject(pos, level = null)
     {
-		return new Position(pos.x, pos.y, pos.z, level);
-	}
-	/**
-	 * Return a Position instance
-	 *
-	 * @return {Position}
-	 */
-	asPosition()
-    {
-		return new Position(this.x, this.y, this.z, this.level);
-	}
+        return new Position(pos.x, pos.y, pos.z, level);
+    }
 
     /**
-	 * Returns the target Level, or null if the target is not valid.
-	 * If a reference exists to a Level which is closed, the reference will be destroyed and null will be returned.
-	 *
-	 * @return {Level | null}
-	 */
-	getLevel()
+    * Return a Position instance
+    *
+    * @return {Position}
+    */
+    asPosition()
     {
-		if(this.level !== null && this.level.isClosed()){
-			//MainLogger.getLogger().debug("Position was holding a reference to an unloaded Level");
-			this.level = null;
-		}
-		return this.level;
-	}
+        return new Position(this.x, this.y, this.z, this.level);
+    }
 
     /**
-	 * Sets the target Level of the position.
-	 *
-	 * @param {Level | null} level
-	 *
-	 * @return {this}
-	 *
-	 * @throws \InvalidArgumentException if the specified Level has been closed
-	 */
-	setLevel(level = null)
+    * Returns the target Level, or null if the target is not valid.
+    * If a reference exists to a Level which is closed, the reference will be destroyed and null will be returned.
+    *
+    * @return {Level | null}
+    */
+    getLevel()
     {
-		if(level !== null && level.isClosed()){
-			//throw new \InvalidArgumentException("Specified level has been unloaded and cannot be used");
-		}
-		this.level = level;
-		return this;
-	}
+        if(this.level !== null && this.level.isClosed()){
+            //MainLogger.getLogger().debug("Position was holding a reference to an unloaded Level");
+            this.level = null;
+        }
+        return this.level;
+    }
 
     /**
-	 * Checks if this object has a valid reference to a loaded Level
-	 *
-	 * @return {bool}
-	 */
-	isValid()
+    * Sets the target Level of the position.
+    *
+    * @param {Level | null} level
+    *
+    * @return {this}
+    *
+    * @throws \InvalidArgumentException if the specified Level has been closed
+    */
+    setLevel(level = null)
     {
-		return this.getLevel() instanceof Level;
-	}
+        if(level !== null && level.isClosed()){
+            //throw new \InvalidArgumentException("Specified level has been unloaded and cannot be used");
+        }
+            this.level = level;
+            return this;
+    }
 
     /**
-	 * Returns a side Vector
-	 *
-	 * @param {int} side
-	 * @param {int} step
-	 *
-	 * @return {Position}
-	 *
-	 * @throws {LevelException}
-	 */
-	getSide(side, step = 1)
+    * Checks if this object has a valid reference to a loaded Level
+    *
+    * @return {Boolean}
+    */
+    isValid()
     {
-		assert(this.isValid());
-		return this.fromObject(super.getSide(side, step), this.level);
-	}
-	__toString()
+        return this.getLevel() instanceof Level;
+    }
+
+    /**
+    * Returns a side Vector
+    *
+    * @param {Number} side
+    * @param {Number} step
+    *
+    * @return {Position}
+    *
+    * @throws {LevelException}
+    */
+    getSide(side, step = 1)
     {
-		return "Position(level=" + (this.isValid() ? this.getLevel().getName() : "null") + ",x=" + this.x + ",y=" + this.y + ",z=" + this.z + ")";
-	}
-	/**
-	 * @param x
-	 * @param y
-	 * @param z
-	 *
-	 * @return {Position}
-	 */
-	setComponents(x, y, z)
+        var assert = require('assert');
+        assert(this.isValid());
+        return this.fromObject(super.getSide(side, step), this.level);
+    }
+
+    __toString()
     {
-		this.x = x;
-		this.y = y;
-		this.z = z;
-		return this;
-	}
-	equals(v)
+        return "Position(level=" + (this.isValid() ? this.getLevel().getName() : "null") + ",x=" + this.x + ",y=" + this.y + ",z=" + this.z + ")";
+    }
+
+    /**
+    * @param x
+    * @param y
+    * @param z
+    *
+    * @return {Position}
+    */
+    setComponents(x, y, z)
     {
-		if(v instanceof Position){
-			return super.equals(v) && v.getLevel() === this.getLevel();
-		}
-		return super.equals(v);
-	}
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        return this;
+    }
+
+    equals(v)
+    {
+        if(v instanceof Position){
+            return super.equals(v) && v.getLevel() === this.getLevel();
+        }
+        return super.equals(v);
+    }
 
 }
