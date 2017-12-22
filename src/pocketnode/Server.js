@@ -16,7 +16,9 @@ const PluginsCommand = pocketnode("command/defaults/PluginsCommand");
 
 const Player = pocketnode("Player");
 
-const FileSystem = require("fs");
+const SFS = pocketnode("utils/SimpleFileSystem");
+
+const PHPRound = pocketnode("utils/methods/PHPRound");
 
 class Server {
     initVars(){
@@ -26,14 +28,24 @@ class Server {
         this.ops = {};
         this.whitelist = {};
 
-        this.isRunning = true;
-        this.hasStopped = false;
+        this.running = true;
+        this.stopped = false;
+
+        this.pluginManager = {};
+
+        this.tickCounter = 0;
+        this.tickAverage = new Array(20).fill(20);
+        this.useAverage = new Array(20).fill(0);
+        this.currentTPS = 20;
+        this.currentUse = 0;
 
         this.logger = {};
 
         this.onlineMode = false;
         this.serverId = Math.floor((Math.random() * 99999999)+1);
+
         this.paths = {};
+        this.properties = {};
 
         this.levels = new Map();
         this.players = new Map();
@@ -46,19 +58,19 @@ class Server {
         this.logger = logger;
         this.paths = paths;
 
-        if(!FileSystem.existsSync(this.getDataPath() + "worlds/")){
-            FileSystem.mkdirSync(this.getDataPath() + "worlds/");
+        if(!SFS.dirExists(this.getDataPath() + "worlds/")){
+            SFS.mkdir(this.getDataPath() + "worlds/");
         }
 
-        if(!FileSystem.existsSync(this.getDataPath() + "players/")){
-            FileSystem.mkdirSync(this.getDataPath() + "players/");
+        if(!SFS.dirExists(this.getDataPath() + "players/")){
+            SFS.mkdir(this.getDataPath() + "players/");
         }
 
-        if(!FileSystem.existsSync(this.paths.plugins)){
-            FileSystem.mkdirSync(this.paths.plugins);
+        if(!SFS.dirExists(this.paths.plugins)){
+            SFS.mkdir(this.paths.plugins);
         }
 
-        this.getLogger().info("Starting " + this.getName() + " a Minecraft: Bedrock Edition server for version " + this.getVersion());
+        this.getLogger().info("Loading " + this.getName() + " a Minecraft: Bedrock Edition server for version " + this.getVersion());
 
         this.getLogger().info("Loading server properties...");
         this.properties = new Config(this.getDataPath() + "server.properties.json", ConfigTypes.JSON, {
@@ -72,32 +84,56 @@ class Server {
         });
         this.getLogger().setDebugging(this.properties.get("is_debugging", false));
 
+        //this.interfaces.scheduler
+
         this.ops = new Config(this.getDataPath() + "ops.json", ConfigTypes.JSON);
         this.whitelist = new Config(this.getDataPath() + "whitelist.json", ConfigTypes.JSON);
         this.banned.names = new Config(this.getDataPath() + "banned-names.json", ConfigTypes.JSON);
         this.banned.ips = new Config(this.getDataPath() + "banned-ips.json", ConfigTypes.JSON);
 
-        this.getLogger().info("Starting Minecraft: PE server on " + this.getIp() + ":" + this.getPort());
+        process.title = this.getName() + " " + this.getPocketNodeVersion();
+
+        this.getLogger().debug("Server id:", this.serverId);
+
+        this.getLogger().info("Starting server on " + this.getIp() + ":" + this.getPort());
+
+        //network implementation?
 
         this.interfaces.RakNet = new RakNetServer(this, (new (this.getLogger().constructor)("RakNet")).setDebugging(this.properties.get("is_debugging", false)));
 
+        this.getLogger().info("This server is running " + this.getName() + " version " + this.getPocketNodeVersion() + " \"" + this.getCodeName() + "\" (API " + this.getApiVersion() + ")");
+        this.getLogger().info("PocketNode is distributed under the GPLv3 License.");
+
         this.interfaces.CommandMap = new CommandMap(this);
+        this.registerDefaultCommands();
         this.interfaces.ConsoleCommandReader = new ConsoleCommandReader(this);
 
         this.interfaces.PluginManager = new PluginManager(this);
         this.interfaces.PluginManager.registerLoader(SourcePluginLoader);
         this.interfaces.PluginManager.registerLoader(ScriptPluginLoader);
         this.interfaces.PluginManager.loadPlugins(this.getPluginPath());
-        this.interfaces.PluginManager.enablePlugins();
+        this.interfaces.PluginManager.enablePlugins(); //load order STARTUP
 
-        this.registerDefaultCommands();
+        //if network register raknet here
 
-        this.getLogger().info("This server is running " + this.getName() + " version " + this.getPocketNodeVersion() + " \"" + this.getCodeName() + "\" (API " + this.getApiVersion() + ")");
-        this.getLogger().info("PocketNode is distributed under the GPLv3 License.");
+        //levels load here
+
+        //enable plugins POSTWORLD
+
+        this.start();
+
+        // plugin stuff here
+    }
+
+    start(){
+
+        //block banned ips
+
+        this.tickCounter = 0;
 
         this.getLogger().info("Done ("+(Date.now() - this.PocketNode.START_TIME)+"ms)!");
 
-        // plugin stuff here
+        this.tickProcessor();
     }
 
     registerDefaultCommands(){
@@ -110,20 +146,20 @@ class Server {
      * @return Boolean
      */
     isRunning(){
-        return this.isRunning;
+        return this.running;
     }
 
     /**
      * @return Boolean
      */
     shutdown(){
-        if(!this.isRunning) return;
+        if(!this.running) return;
 
         this.getLogger().info("Shutting down.");
         this.interfaces.RakNet.server.socket.close();
         this.interfaces.PluginManager.disablePlugins();
 
-        this.isRunning = false;
+        this.running = false;
 
         process.exit(); // fix this later
     }
@@ -382,6 +418,66 @@ class Server {
         }
 
         return gamemode;
+    }
+
+    tickProcessor(){
+        let int = setInterval(() => {
+            if(this.isRunning()){
+                this.tick();
+            }else{
+                clearInterval(int);
+            }
+        }, 1000 / 20);
+    }
+
+    tick(){
+        let time = Date.now();
+
+        ++this.tickCounter;
+
+        //network process interfaces
+        this.interfaces.RakNet.tick();
+
+        if((this.tickCounter % 20) === 0){
+            this.titleTick();
+
+            this.currentTPS = 20;
+            this.currentUse = 0;
+        }
+
+        let now = Date.now();
+        this.currentTPS = Math.min(20, 1 / Math.max(0.001, now - time));
+        this.currentUse = Math.min(1, (now - time) / 0.05);
+
+        this.tickAverage.shift();
+        this.tickAverage.push(this.currentTPS);
+        this.useAverage.shift();
+        this.useAverage.push(this.currentUse);
+        //network update name
+    }
+
+    getTicksPerSecond(){
+        return PHPRound(this.currentTPS, 2);
+    }
+
+    getTicksPerSecondAverage(){
+        return PHPRound(this.tickAverage.reduce((a, b) => a + b, 0) / this.tickAverage.length, 2);
+    }
+
+    getTickUsage(){
+        return PHPRound(this.currentUse * 100, 2);
+    }
+
+    getTickUsageAverage(){
+        return PHPRound((this.useAverage.reduce((a, b) => a + b, 0) / this.useAverage.length) * 100, 2);
+    }
+
+    titleTick(){
+        process.title = this.getName() + " " +
+            this.getPocketNodeVersion() + " | " +
+            "Online " + this.getOnlinePlayerCount() + "/" + this.getMaxPlayers() + " | " +
+            "TPS " + this.getTicksPerSecondAverage() + " | " +
+            "Load " + this.getTickUsageAverage() + "%";
     }
 }
 module.exports = Server;
