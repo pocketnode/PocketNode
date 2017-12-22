@@ -435,9 +435,6 @@ class Server {
 
         ++this.tickCounter;
 
-        //network process interfaces
-        this.interfaces.RakNet.tick();
-
         if((this.tickCounter % 20) === 0){
             this.titleTick();
 
