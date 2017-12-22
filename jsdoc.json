@@ -1,0 +1,18 @@
+{
+    "plugins": [],
+    "recurseDepth": 10,
+    "source": {
+        "exclude": ["./node_modules", "./src/pocketnode/entity/Entity.js", "./src/pocketnode/nbt/NBT.js"],
+        "includePattern": ".+\\.js(doc|x)?$",
+        "excludePattern": "(^|\\/|\\\\)_"
+    },
+    "sourceType": "module",
+    "tags": {
+        "allowUnknownTags": true,
+        "dictionaries": ["jsdoc","closure"]
+    },
+    "templates": {
+        "cleverLinks": false,
+        "monospaceLinks": false
+    }
+}
