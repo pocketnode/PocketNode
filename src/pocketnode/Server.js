@@ -18,8 +18,6 @@ const Player = pocketnode("Player");
 
 const SFS = pocketnode("utils/SimpleFileSystem");
 
-const PHPRound = pocketnode("utils/methods/PHPRound");
-
 class Server {
     initVars(){
         this.interfaces = {};
@@ -451,19 +449,19 @@ class Server {
     }
 
     getTicksPerSecond(){
-        return PHPRound(this.currentTPS, 2);
+        return Math.round_php(this.currentTPS, 2);
     }
 
     getTicksPerSecondAverage(){
-        return PHPRound(this.tickAverage.reduce((a, b) => a + b, 0) / this.tickAverage.length, 2);
+        return Math.round_php(this.tickAverage.reduce((a, b) => a + b, 0) / this.tickAverage.length, 2);
     }
 
     getTickUsage(){
-        return PHPRound(this.currentUse * 100, 2);
+        return Math.round_php(this.currentUse * 100, 2);
     }
 
     getTickUsageAverage(){
-        return PHPRound((this.useAverage.reduce((a, b) => a + b, 0) / this.useAverage.length) * 100, 2);
+        return Math.round_php((this.useAverage.reduce((a, b) => a + b, 0) / this.useAverage.length) * 100, 2);
     }
 
     titleTick(){
