@@ -11,25 +11,18 @@
 */
 
 /**
-* A Vector3 is a Vector for use in 3D environments. It contains an X, Y, and Z component.
-* @class
-*/
+ * A Vector3 is a Vector for use in 3D environments. It contains an X, Y, and Z component.
+ * @class
+ */
 class Vector3
 {
 
-    initVars()
-    {
-        this.SIDE_DOWN = 0;
-    	this.SIDE_UP = 1;
-    	this.SIDE_NORTH = 2;
-    	this.SIDE_SOUTH = 3;
-    	this.SIDE_WEST = 4;
-    	this.SIDE_EAST = 5;
-
-        this.x;
-        this.y;
-        this.z;
-    }
+    static get SIDE_DOWN(){return 0}
+    static get SIDE_UP(){return 1}
+    static get SIDE_NORTH(){return 2}
+    static get SIDE_SOUTH(){return 3}
+    static get SIDE_WEST(){return 4}
+    static get SIDE_EAST(){return 5}
 
     /**
      * Represents a 3D Vector.
@@ -39,84 +32,67 @@ class Vector3
 	 * @param {Number}   z The Z component of the Vector
      *
 	 */
-
-    constructor(x = 0, y = 0, z = 0)
-    {
-        this.initVars();
-
+    constructor(x = 0, y = 0, z = 0){
         this.x = x;
         this.y = y;
         this.z = z;
     }
 
-    getX()
-    {
+    getX(){
         return this.x;
     }
 
-    getY()
-    {
+    getY(){
         return this.y;
     }
 
-    getZ()
-    {
+    getZ(){
         return this.z;
     }
 
-    getfloorX()
-    {
+    getFloorX(){
         return Math.floor(this.x);
     }
 
-    getfloorY()
-    {
+    getFloorY(){
         return Math.floor(this.y);
     }
 
-    getfloorZ()
-    {
+    getFloorZ(){
         return Math.floor(this.z);
     }
 
-    getRight()
-    {
-        return this.x;
+    getRight(){
+        return this.getX();
     }
 
-    getUp()
-    {
-        return this.y;
+    getUp(){
+        return this.getY();
     }
 
-    getForward()
-    {
-        return this.z;
+    getForward(){
+        return this.getZ();
     }
 
-    getSouth()
-    {
-        return this.x;
+    getSouth(){
+        return this.getX();
     }
 
-    getWest()
-    {
-        return this.z;
+    getWest(){
+        return this.getZ();
     }
 
     /**
-    * @param {Vector3 | Number} x
+    * @param {Vector3 | number} x
     * @param {Number}           y
     * @param {Number}           z
     *
     * @return {Vector3}
     */
-    add(x, y = 0, z = 0)
-    {
-        if(x instanceof Vector3)
-        {
+    add(x, y = 0, z = 0){
+        if(x instanceof Vector3){
             return new Vector3(this.x + x.x, this.y + x.y, this.z + x.z);
-        } else {
+        }else{
             return new Vector3(this.x + x, this.y + y, this.z + z);
         }
     }
@@ -128,8 +104,7 @@ class Vector3
     *
     * @return {Vector3}
     */
-    subtract(x = 0, y = 0, z = 0)
-    {
+    subtract(x = 0, y = 0, z = 0){
         if(x instanceof Vector3){
             return this.add(-x.x, -x.y, -x.z);
         }else{
@@ -137,59 +112,47 @@ class Vector3
         }
     }
 
-    multiply(number)
-    {
+    multiply(number){
         return new Vector3(this.x * number, this.y * number, this.z * number);
     }
+
     divide(number)
     {
         return new Vector3(this.x / number, this.y / number, this.z / number);
     }
-    ceil()
-    {
+
+    ceil(){
         return new Vector3(Math.ceil(this.x), Math.ceil(this.y), Math.ceil(this.z));
     }
-    floor()
-    {
+
+    floor(){
         return new Vector3(Math.floor(this.x), Math.floor(this.y), Math.floor(this.z));
     }
 
-    round(precision = 0, mode = "php_round_HALF_UP")
-    {
-        return precision > 0 ?
-        new Vector3(Math.php_round(this.x, precision, mode), Math.php_round(this.y, precision, mode), Math.php_round(this.z, precision, mode)) :
-        new Vector3(Math.php_round(this.x, precision, mode), Math.php_round(this.y, precision, mode), Math.php_round(this.z, precision, mode));
+    round(precision = 0, mode = "ROUND_HALF_UP"){
+        return new Vector3(Math.round_php(this.x, precision, mode), Math.round_php(this.y, precision, mode), Math.round_php(this.z, precision, mode));
     }
 
-    abs()
-    {
+    abs(){
         return new Vector3(Math.abs(this.x), Math.abs(this.y), Math.abs(this.z));
     }
 
-    getSide(side, step = 1)
-    {
+    getSide(side, step = 1){
         switch(side){
-            case this.SIDE_DOWN:
+            case Vector3.SIDE_DOWN:
                 return new Vector3(this.x, this.y - step, this.z);
-                break;
-            case this.SIDE_UP:
+            case Vector3.SIDE_UP:
                 return new Vector3(this.x, this.y + step, this.z);
-                break;
-            case this.SIDE_NORTH:
+            case Vector3.SIDE_NORTH:
                 return new Vector3(this.x, this.y, this.z - step);
-                break;
-            case this.SIDE_SOUTH:
+            case Vector3.SIDE_SOUTH:
                 return new Vector3(this.x, this.y, this.z + step);
-                break;
-            case this.SIDE_WEST:
+            case Vector3.SIDE_WEST:
                 return new Vector3(this.x - step, this.y, this.z);
-                break;
-            case this.SIDE_EAST:
+            case Vector3.SIDE_EAST:
                 return new Vector3(this.x + step, this.y, this.z);
-                break;
             default:
                 return this;
-                break;
         }
     }
 
@@ -198,8 +161,7 @@ class Vector3
     *
     * @return {Vector3}
     */
-    asVector3()
-    {
+    asVector3(){
         return new Vector3(this.x, this.y, this.z);
     }
 
@@ -211,65 +173,55 @@ class Vector3
     *
     * @throws \InvalidArgumentException if an invalid side is supplied
     */
-    getOppositeSide(side)
-    {
+    getOppositeSide(side){
         if(side >= 0 && side <= 5){
             return side ^ 0x01;
         }
     //throw new \InvalidArgumentException("Invalid side side given to getOppositeSide");
     }
 
-    distance(pos)
-    {
+    distance(pos){
         return Math.sqrt(this.distanceSquared(pos));
     }
 
-    distanceSquared(pos)
-    {
+    distanceSquared(pos){
         return ((this.x - pos.x) ** 2) + ((this.y - pos.y) ** 2) + ((this.z - pos.z) ** 2);
     }
 
-    maxPlainDistance(x = 0, z = 0)
-    {
-        if(x instanceof Vector3)
-        {
+    maxPlainDistance(x = 0, z = 0){
+        if(x instanceof Vector3){
             return this.maxPlainDistance(x.x, x.z);
         //} else if(x instanceof Vector2) {
             //return this.maxPlainDistance(x.x, x.y);
-        } else {
+        }else{
             return Math.max(Math.abs(this.x - x), Math.abs(this.z - z));
         }
     }
 
-    length()
-    {
+    length(){
         return Math.sqrt(this.lengthSquared());
     }
 
-    lengthSquared()
-    {
+    lengthSquared(){
         return this.x * this.x + this.y * this.y + this.z * this.z;
     }
 
     /**
     * @return {Vector3}
     */
-    normalize()
-    {
-        len = this.lengthSquared();
+    normalize(){
+        let len = this.lengthSquared();
         if(len > 0){
             return this.divide(Math.sqrt(len));
         }
         return new Vector3(0, 0, 0);
     }
 
-    dot(v)
-    {
+    dot(v){
         return this.x * v.x + this.y * v.y + this.z * v.z;
     }
 
-    cross(v)
-    {
+    cross(v){
         return new Vector3(
             this.y * v.z - this.z * v.y,
             this.z * v.x - this.x * v.z,
@@ -277,9 +229,8 @@ class Vector3
         );
     }
 
-    equals(v)
-    {
-        return this.x == v.x && this.y == v.y && this.z == v.z;
+    equals(v){
+        return this.x === v.x && this.y === v.y && this.z === v.z;
     }
 
     /**
@@ -291,18 +242,17 @@ class Vector3
     *
     * @return {Vector3} | null
     */
-    getnumberermediateWithXValue(v, x)
-    {
-        xDiff = v.x - this.x;
-        yDiff = v.y - this.y;
-        zDiff = v.z - this.z;
+    getIntermediateWithXValue(v, x){
+        let xDiff = v.x - this.x;
+        let yDiff = v.y - this.y;
+        let zDiff = v.z - this.z;
         if((xDiff * xDiff) < 0.0000001){
             return null;
         }
-        f = (x - this.x) / xDiff;
+        let f = (x - this.x) / xDiff;
         if(f < 0 || f > 1){
             return null;
-        } else {
+        }else{
             return new Vector3(x, this.y + yDiff * f, this.z + zDiff * f);
         }
     }
@@ -316,15 +266,14 @@ class Vector3
     *
     * @return {Vector3} | null
     */
-    getnumberermediateWithYValue(v, y)
-    {
-        xDiff = v.x - this.x;
-        yDiff = v.y - this.y;
-        zDiff = v.z - this.z;
+    getIntermediateWithYValue(v, y){
+        let xDiff = v.x - this.x;
+        let yDiff = v.y - this.y;
+        let zDiff = v.z - this.z;
         if((yDiff * yDiff) < 0.0000001){
             return null;
         }
-        f = (y - this.y) / yDiff;
+        let f = (y - this.y) / yDiff;
         if(f < 0 || f > 1){
             return null;
         }else{
@@ -341,15 +290,14 @@ class Vector3
     *
     * @return {Vector3 | null}
     */
-    getnumberermediateWithZValue(v, z)
-    {
-        xDiff = v.x - this.x;
-        yDiff = v.y - this.y;
-        zDiff = v.z - this.z;
+    getIntermediateWithZValue(v, z){
+        let xDiff = v.x - this.x;
+        let yDiff = v.y - this.y;
+        let zDiff = v.z - this.z;
         if((zDiff * zDiff) < 0.0000001){
             return null;
         }
-        f = (z - this.z) / zDiff;
+        let f = (z - this.z) / zDiff;
         if(f < 0 || f > 1){
             return null;
         }else{
@@ -364,16 +312,14 @@ class Vector3
     *
     * @return {Vector3}
     */
-    setComponents(x, y, z)
-    {
+    setComponents(x, y, z){
         this.x = x;
         this.y = y;
         this.z = z;
         return this;
     }
 
-    toString()
-    {
+    toString(){
         return "Vector3(x=" + this.x + ",y=" + this.y + ",z=" + this.z + ")";
     }
 
