@@ -30,6 +30,13 @@ TextFormat.tokenize = function(str){
     return str.split(new RegExp("(" + TextFormat.ESCAPE + "[0123456789abcdefklmnor])")).filter(v => v !== "");
 };
 
+TextFormat.clean = function(str, removeFormat = true){
+    if(removeFormat){
+        return str.replace(new RegExp(TextFormat.ESCAPE + "[0123456789abcdefklmnor]", "g"), "").replace(/\x1b[\\(\\][[0-9;\\[\\(]+[Bm]/g, "").replace(new RegExp(TextFormat.ESCAPE, "g"), "");
+    }
+    return str.replace(/\x1b[\\(\\][[0-9;\\[\\(]+[Bm]/g, "").replace(/\x1b/g, "");
+}
+
 TextFormat.toTerminal = function(str){ //make this better
     str = TextFormat.tokenize(str);
     str.forEach((v, k) => {
