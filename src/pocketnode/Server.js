@@ -6,7 +6,7 @@ const PluginManager = pocketnode("plugin/PluginManager");
 const SourcePluginLoader = pocketnode("plugin/SourcePluginLoader");
 const ScriptPluginLoader = pocketnode("plugin/ScriptPluginLoader");
 
-const RakNetServer = (process.argv.length === 3 && process.argv[2] === "LOCAL" ? require("../../../RakNet") : require("raknet"));
+const RakNetAdapter = pocketnode("network/RakNetAdapter");
 
 const CommandMap = pocketnode("command/CommandMap");
 const ConsoleCommandReader = pocketnode("command/ConsoleCommandReader");
@@ -14,7 +14,8 @@ const HelpCommand = pocketnode("command/defaults/HelpCommand");
 const StopCommand = pocketnode("command/defaults/StopCommand");
 const PluginsCommand = pocketnode("command/defaults/PluginsCommand");
 
-const Player = pocketnode("Player");
+const Player = pocketnode("player/Player");
+const PlayerList = pocketnode("player/PlayerList");
 
 const SFS = pocketnode("utils/SimpleFileSystem");
 
@@ -46,7 +47,8 @@ class Server {
         this.properties = {};
 
         this.levels = new Map();
-        this.players = new Map();
+        this.players = new PlayerList();
+        this.playerList = new PlayerList();
     }
 
     constructor(PocketNode, logger, paths){
@@ -95,9 +97,7 @@ class Server {
 
         this.getLogger().info("Starting server on " + this.getIp() + ":" + this.getPort());
 
-        //network implementation?
-
-        this.interfaces.RakNet = new RakNetServer(this, (new (this.getLogger().constructor)("RakNet")).setDebugging(this.properties.get("is_debugging", false)));
+        this.interfaces.RakNetAdapter = new RakNetAdapter(this);
 
         this.getLogger().info("This server is running " + this.getName() + " version " + this.getPocketNodeVersion() + " \"" + this.getCodeName() + "\" (API " + this.getApiVersion() + ")");
         this.getLogger().info("PocketNode is distributed under the GPLv3 License.");
@@ -111,8 +111,6 @@ class Server {
         this.interfaces.PluginManager.registerLoader(ScriptPluginLoader);
         this.interfaces.PluginManager.loadPlugins(this.getPluginPath());
         this.interfaces.PluginManager.enablePlugins(); //load order STARTUP
-
-        //if network register raknet here
 
         //levels load here
 
@@ -141,7 +139,7 @@ class Server {
     }
 
     /**
-     * @return Boolean
+     * @return {boolean}
      */
     isRunning(){
         return this.running;
@@ -150,8 +148,8 @@ class Server {
     shutdown(){
         if(!this.running) return;
 
-        this.getLogger().info("Shutting down.");
-        this.interfaces.RakNet.server.socket.close();
+        this.getLogger().info("Shutting down...");
+        this.interfaces.RakNetAdapter.close();
         this.interfaces.PluginManager.disablePlugins();
 
         this.running = false;
@@ -160,49 +158,49 @@ class Server {
     }
 
     /**
-     * @return String
+     * @return {string}
      */
     getName(){
         return this.PocketNode.NAME;
     }
 
     /**
-     * @return String
+     * @return {string}
      */
     getCodeName(){
         return this.PocketNode.CODENAME;
     }
 
     /**
-     * @return String
+     * @return {string}
      */
     getPocketNodeVersion(){
         return this.PocketNode.VERSION;
     }
 
     /**
-     * @return String
+     * @return {string}
      */
     getVersion(){
         return MinecraftInfo.VERSION;
     }
 
     /**
-     * @returns Number
+     * @return {number}
      */
     getProtocol(){
         return MinecraftInfo.PROTOCOL;
     }
 
     /**
-     * @return String
+     * @return {string}
      */
     getApiVersion(){
         return this.PocketNode.API_VERSION;
     }
 
     /**
-     * @returns {CommandMap}
+     * @return {CommandMap}
      */
     getCommandMap(){
         return this.interfaces.CommandMap;
@@ -213,21 +211,21 @@ class Server {
     }
 
     /**
-     * @return String
+     * @return {string}
      */
     getDataPath(){
         return this.paths.data;
     }
 
     /**
-     * @return String
+     * @return {string}
      */
     getPluginPath(){
         return this.paths.plugins;
     }
 
     /**
-     * @return Number
+     * @return {number}
      */
     getMaxPlayers(){
         return this.properties.get("max_players", 20);
@@ -236,7 +234,7 @@ class Server {
     /**
      * Returns whether the server requires players to be authenticated to Xbox Live.
      *
-     * @return Boolean
+     * @return {boolean}
      */
     getOnlineMode(){
         return this.onlineMode;
@@ -245,42 +243,42 @@ class Server {
     /**
      * Alias of this.getOnlineMode()
      *
-     * @return Boolean
+     * @return {boolean}
      */
     requiresAuthentication(){
         return this.getOnlineMode();
     }
 
     /**
-     * @return String
+     * @return {string}
      */
     getIp(){
         return this.properties.get("ip", "0.0.0.0");
     }
 
     /**
-     * @return Number
+     * @return {number}
      */
     getPort(){
         return this.properties.get("port", 19132);
     }
 
     /**
-     * @return Number
+     * @return {number}
      */
     getServerId(){
         return this.serverId;
     }
 
     /**
-     * @return Boolean
+     * @return {boolean}
      */
     hasWhitelist(){
         return this.properties.get("whitelist", false);
     }
 
     /**
-     * @return String
+     * @return {string}
      */
     getMotd(){
         return this.properties.get("motd", this.PocketNode.NAME + " Server");
@@ -289,30 +287,33 @@ class Server {
     /**
      * @return {Logger}
      */
-    static getLogger(){
-        return new (pocketnode("logger/Logger"));
-    }
     getLogger(){
         return this.logger;
     }
 
     /**
-     * @return Map
+     * @return {Array}
      */
     getOnlinePlayers(){
-        return this.players;
+        return Array.from(this.playerList.values());
     }
 
     /**
-     * @returns Number
+     * @return {number}
      */
     getOnlinePlayerCount(){
-        return this.getOnlinePlayers().size;
+        return this.getOnlinePlayers().length;
     }
 
     /**
-     * @param name String
-     *
+     * @return {boolean}
+     */
+    isFull(){
+        return this.getOnlinePlayerCount() === this.getMaxPlayers();
+    }
+
+    /**
+     * @param name {string}
      * @return {Player}
      */
     getPlayer(name){
@@ -321,7 +322,7 @@ class Server {
         let found = null;
         let delta = 20; // estimate nametag length
 
-        for(let [username, player] of this.getOnlinePlayers()){
+        for(let [username, player] of this.playerList){
             if(username.indexOf(name) === 0){
                 let curDelta = username.length - name.length;
                 if(curDelta < delta){
@@ -338,31 +339,28 @@ class Server {
     }
 
     /**
-     * @param name String
-     *
+     * @param name {string}
      * @return {Player}
      */
     getPlayerExact(name){
         name = name.toLowerCase();
 
-        let onlinePlayers = this.getOnlinePlayers();
-        if(onlinePlayers.has(name)){
-            return onlinePlayers.get(name);
+        if(this.playerList.has(name)){
+            return this.playerList.get(name);
         }
 
         return null;
     }
 
     /**
-     * @param partialName String
-     *
-     * @return {Player}[]
+     * @param partialName {string}
+     * @return []{Player}
      */
     matchPlayer(partialName){
         partialName = partialName.toLowerCase();
         let matchedPlayers = [];
 
-        for(let [username, player] of this.getOnlinePlayers()){
+        for(let [username, player] of this.playerList){
             if(username === partialName){
                 matchedPlayers = [player];
                 break;
@@ -374,6 +372,18 @@ class Server {
         return matchedPlayers;
     }
 
+    addPlayer(id, player){
+        CheckTypes([Player, player]);
+
+        this.players.addPlayer(id, player);
+    }
+
+    addOnlinePlayer(player){
+        CheckTypes([Player, player]);
+
+        this.playerList.addPlayer(player.getLowerCaseName(), player);
+    }
+
     registerPlayer(name, player){
         if(player instanceof Player){
             if(this.getPlayer(name) !== null) return false;
@@ -382,6 +392,20 @@ class Server {
         }else{
             return false;
         }
+    }
+
+    /**
+     * @return {PlayerList}
+     */
+    getPlayerList(){
+        return this.players;
+    }
+
+    /**
+     * @return {PlayerList}
+     */
+    getOnlinePlayerList(){
+        return this.playerList;
     }
 
     /**
@@ -445,7 +469,8 @@ class Server {
         this.tickAverage.push(this.currentTPS);
         this.useAverage.shift();
         this.useAverage.push(this.currentUse);
-        //network update name
+
+        this.interfaces.RakNetAdapter.tick();
     }
 
     getTicksPerSecond(){
@@ -474,4 +499,5 @@ class Server {
         +"\x07");
     }
 }
+
 module.exports = Server;
