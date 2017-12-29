@@ -40,7 +40,6 @@ class LoginPacket extends DataPacket {
 
     _decodePayload(){
         this.protocol = this.getStream().readInt();
-        console.log(this.protocol);
 
         if(this.protocol !== MinecraftInfo.PROTOCOL){
             if(this.protocol > 0xffff){

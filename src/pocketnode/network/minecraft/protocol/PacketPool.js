@@ -1,4 +1,7 @@
 const LoginPacket = pocketnode("network/minecraft/protocol/LoginPacket");
+const PlayStatusPacket = pocketnode("network/minecraft/protocol/PlayStatusPacket");
+const DisconnectPacket = pocketnode("network/minecraft/protocol/DisconnectPacket");
+const ResourcePacksInfoPacket = pocketnode("network/minecraft/protocol/ResourcePacksInfoPacket");
 
 class PacketPool {
     constructor(){
@@ -11,7 +14,7 @@ class PacketPool {
     }
 
     getPacket(id){
-        return this.packetPool.has(id) ? this.packetPool.get(id) : null;
+        return this.packetPool.has(id) ? new (this.packetPool.get(id))() : null;
     }
 
     isRegistered(id){
@@ -20,6 +23,11 @@ class PacketPool {
 
     registerPackets(){
         this.registerPacket(LoginPacket.getId(), LoginPacket);
+        this.registerPacket(PlayStatusPacket.getId(), PlayStatusPacket);
+        //serverclienthandshake
+        //viseversa
+        this.registerPacket(DisconnectPacket.getId(), DisconnectPacket);
+        this.registerPacket(ResourcePacksInfoPacket.getId(), ResourcePacksInfoPacket);
     }
 }
 

@@ -7,6 +7,7 @@ const SourcePluginLoader = pocketnode("plugin/SourcePluginLoader");
 const ScriptPluginLoader = pocketnode("plugin/ScriptPluginLoader");
 
 const RakNetAdapter = pocketnode("network/RakNetAdapter");
+const BatchPacket = pocketnode("network/minecraft/protocol/BatchPacket");
 
 const CommandMap = pocketnode("command/CommandMap");
 const ConsoleCommandReader = pocketnode("command/ConsoleCommandReader");
@@ -48,6 +49,7 @@ class Server {
 
         this.levels = new Map();
         this.players = new PlayerList();
+        this.loggedInPlayers = new PlayerList();
         this.playerList = new PlayerList();
     }
 
@@ -149,7 +151,7 @@ class Server {
         if(!this.running) return;
 
         this.getLogger().info("Shutting down...");
-        this.interfaces.RakNetAdapter.close();
+        this.interfaces.RakNetAdapter.shutdown();
         this.interfaces.PluginManager.disablePlugins();
 
         this.running = false;
@@ -384,13 +386,17 @@ class Server {
         this.playerList.addPlayer(player.getLowerCaseName(), player);
     }
 
-    registerPlayer(name, player){
-        if(player instanceof Player){
-            if(this.getPlayer(name) !== null) return false;
-            this.players.set(name.toLowerCase(), player);
-            return true;
-        }else{
-            return false;
+    removeOnlinePlayer(player){
+        CheckTypes([Player, player]);
+
+        this.playerList.removePlayer(player.getLowerCaseName()); // todo
+    }
+
+    removePlayer(player){
+        CheckTypes([Player, player]);
+
+        if(this.players.hasPlayer(player)){
+            this.players.removePlayer(this.players.getPlayerIdentifier(player));
         }
     }
 
@@ -449,6 +455,10 @@ class Server {
         }, 1000 / 20);
     }
 
+    getRakNetAdapter(){
+        return this.interfaces.RakNetAdapter;
+    }
+
     tick(){
         let time = Date.now();
 
@@ -497,6 +507,53 @@ class Server {
             "TPS " + this.getTicksPerSecondAverage() + " | " +
             "Load " + this.getTickUsageAverage() + "%"
         +"\x07");
+    }
+
+    batchPackets(players, packets, forceSync = false, immediate = false){
+        let targets = [];
+        players.forEach(player => {
+            if(player.isConnected()) targets.push(this.players.getPlayerIdentifier(player));
+        });
+
+        if(targets.length > 0){
+            let pk = new BatchPacket();
+
+            packets.forEach(packet => pk.addPacket(packet));
+
+            if(!forceSync && !immediate){
+                //todo compress batched packets async
+            }else{
+                this.broadcastPackets(pk, targets, immediate);
+            }
+        }
+    }
+
+    broadcastPackets(pk, identifiers, immediate){
+        if(!pk.isEncoded){
+            pk.encode();
+        }
+
+        if(immediate){
+            identifiers.forEach(id => {
+                if(this.players.has(id)){
+                    this.players.getPlayer(id).directDataPacket(pk);
+                }
+            });
+        }else{
+            identifiers.forEach(id => {
+                if(this.players.has(id)){
+                    this.players.getPlayer(id).dataPacket(pk);
+                }
+            });
+        }
+    }
+
+    onPlayerLogin(player){
+        this.loggedInPlayers.addPlayer(player.getLowerCaseName(), player); //todo unique ids
+    }
+
+    onPlayerLogout(player){
+        this.loggedInPlayers.removePlayer(player.getLowerCaseName()); //todo unique id
     }
 }
 

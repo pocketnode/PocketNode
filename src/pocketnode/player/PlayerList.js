@@ -10,6 +10,14 @@ class PlayerList extends Map {
         return this.has(id) ? this.get(id) : null;
     }
 
+    hasPlayer(player){
+        return Array.from(this.values()).indexOf(player) !== -1;
+    }
+
+    getPlayerIdentifier(player){
+        return Array.from(this.keys())[Array.from(this.values()).indexOf(player)];
+    }
+
     removePlayer(id){
         return this.delete(id);
     }

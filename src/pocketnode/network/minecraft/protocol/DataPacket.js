@@ -13,8 +13,8 @@ class DataPacket {
         this.stream = new BinaryStream();
 
         this.isEncoded = false;
-
-        this.extraBytes = [];
+        this.extraByte1 = 0;
+        this.extraByte2 = 0;
     }
 
     getName(){
@@ -42,10 +42,10 @@ class DataPacket {
     _decodeHeader(){
         let packetId = this.getStream().readUnsignedVarInt();
         if(packetId === this.getId()){
-            this.extraBytes.push(this.getStream().readByte());
-            this.extraBytes.push(this.getStream().readByte());
+            this.extraByte1 = this.getStream().readByte();
+            this.extraByte2 = this.getStream().readByte();
 
-            if(this.extraBytes[0] !== 0 && this.extraBytes[0] !== 0){
+            if(this.extraByte1 !== 0 && this.extraByte2 !== 0){
                 throw new Error("Got unexpected non-zero split-screen bytes (byte1: "+this.extraBytes[0]+", byte2: "+this.extraBytes[1]);
             }
         }else{
@@ -56,7 +56,7 @@ class DataPacket {
     _decodePayload(){}
 
     encode(){
-        this.getStream().reset();
+        this.stream.reset();
         this._encodeHeader();
         this._encodePayload();
         this.isEncoded = true;
@@ -65,7 +65,9 @@ class DataPacket {
     _encodeHeader(){
         this.getStream().writeUnsignedVarInt(this.getId());
 
-        this.getStream().append(Buffer.from(this.extraBytes));
+        this.getStream()
+            .writeByte(this.extraByte1)
+            .writeByte(this.extraByte2);
     }
 
     _encodePayload(){}

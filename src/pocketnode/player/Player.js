@@ -1,9 +1,13 @@
 const CommandSender = pocketnode("command/CommandSender");
 
-const PlayerSessionAdapter = pocketnode("network/PlayerSessionAdapter");
-const LoginPacket = pocketnode("network/minecraft/protocol/LoginPacket");
-
 const MinecraftInfo = pocketnode("network/minecraft/Info");
+const PlayerSessionAdapter = pocketnode("network/PlayerSessionAdapter");
+
+const DataPacket = pocketnode("network/minecraft/protocol/DataPacket");
+const LoginPacket = pocketnode("network/minecraft/protocol/LoginPacket");
+const PlayStatusPacket = pocketnode("network/minecraft/protocol/PlayStatusPacket");
+const DisconnectPacket = pocketnode("network/minecraft/protocol/DisconnectPacket");
+const ResourcePacksInfoPacket = pocketnode("network/minecraft/protocol/ResourcePacksInfoPacket");
 
 const TextFormat = pocketnode("utils/TextFormat");
 
@@ -25,6 +29,7 @@ class Player extends CommandSender {
         this.spawned = false;
         this.loggedIn = false;
         this.joined = false;
+        this.closed = false;
         this.gamemode = null;
 
         this._authenticated = false;
@@ -43,6 +48,7 @@ class Player extends CommandSender {
         this._displayName = "";
         this._clientId = null;
 
+        this._needACK = {};
     }
     
     constructor(server, clientId, ip, port){
@@ -103,12 +109,12 @@ class Player extends CommandSender {
 
         if(packet.protocol !== MinecraftInfo.PROTOCOL){
             if(packet.protocol < MinecraftInfo.PROTOCOL){
-                //this.sendPlayStatus(PlayStatusPacket.LOGIN_FAILED_CLIENT, true);
+                this.sendPlayStatus(PlayStatusPacket.LOGIN_FAILED_CLIENT, true);
             }else{
-                //this.sendPlayStatus(PlayStatusPacket.LOGIN_FAILED_SERVER, true);
+                this.sendPlayStatus(PlayStatusPacket.LOGIN_FAILED_SERVER, true);
             }
 
-            //todo: add close func. close due to incompatible protocol
+            this.close("", "Incompatible Protocol", false);
 
             return true;
         }
@@ -144,9 +150,116 @@ class Player extends CommandSender {
 
         //todo: add tasks
         //todo: verify
+
+        //---temp---
+        //todo: verifyCompleted
+        this._authenticated = true;
+        //todo: processLogin
+        this.sendPlayStatus(PlayStatusPacket.LOGIN_SUCCESS);
+        this.loggedIn = true;
+        this.server.onPlayerLogin(this);
+        this.server.logger.debug("Player logged in: "+this._username);
+
+        setTimeout(() => {
+            let pk = new ResourcePacksInfoPacket();
+            //set entries
+            //set must accept
+            this.dataPacket(pk); //todo
+        }, 2000);
+        //---temp---
+
         //this.server.getScheduler().scheduleAsyncTask(new VerifyLoginTask(this, packet));
 
         return true;
+    }
+
+    sendPlayStatus(status, immediate = false){
+        let pk = new PlayStatusPacket();
+        pk.status = status;
+        pk.protocol = this._protocol;
+        if(immediate){
+            this.directDataPacket(pk);
+        }else{
+            this.dataPacket(pk);
+        }
+    }
+
+    dataPacket(packet, needACK = false){
+        return this.sendDataPacket(packet, needACK, false);
+    }
+
+    directDataPacket(packet, needACK = false){
+        return this.sendDataPacket(packet, needACK, true);
+    }
+
+    sendDataPacket(packet, needACK = false, immediate = false){
+        if(!this.isConnected()) return false;
+        CheckTypes([DataPacket, packet], [Boolean, needACK], [Boolean, immediate]);
+
+        if(packet.getName().toLowerCase() !== "batchpacket") this.server.logger.debug("Sending "+packet.getName()+" to "+(this.getName()!==""?this.getName():this._ip+":"+this._port));
+
+        if(!this.loggedIn && !packet.canBeSentBeforeLogin()){
+            throw new Error("Attempted to send "+packet.getName()+" to "+this.getName()+" before they got logged in.");
+        }
+
+        let identifier = this.getSessionAdapter().sendPacket(packet, needACK, immediate);
+
+        if(needACK && identifier !== null){
+            this._needACK[identifier] = false;
+            return identifier;
+        }
+
+        return true;
+    }
+
+    close(message, reason = "generic reason", notify = true){
+        if(this.isConnected() && !this.closed){
+            try{
+                if(notify && reason.length > 0){
+                    let pk = new DisconnectPacket();
+                    pk.message = reason;
+                    this.directDataPacket(pk);
+                }
+
+                this._sessionAdapter = null;
+
+                //unsub from perms?
+                //stopsleep
+
+                if(this.joined){
+                    try{
+                        //save player data
+                    }catch(e){
+                        this.server.getLogger().critical("Failed to save player data for "+this.getName());
+                        this.server.getLogger().critical(e);
+                    }
+
+                    //tell server player left the game
+                }
+                this.joined = false;
+
+                //if valid do chuck stuff
+
+                if(this.loggedIn){
+                    this.server.onPlayerLogout(this);
+                    //can see etc
+                }
+
+                this.spawned = false;
+
+                this.server.getLogger().info(TextFormat.AQUA + "[" + this.getName() + "/"+this._ip+":"+this._port+"]" + TextFormat.WHITE + " has disconnected due to " + reason);
+
+                if(this.loggedIn){
+                    this.loggedIn = false;
+                    this.server.removeOnlinePlayer(this);
+                }
+            }catch(e){
+                this.server.getLogger().error(e);
+            }finally{
+                this.server.getRakNetAdapter().close(this, notify ? reason : "");
+                this.server.removePlayer(this);
+            }
+        }
     }
 
     /**

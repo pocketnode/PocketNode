@@ -82,6 +82,7 @@ class BinaryStream {
             this.buffer = Buffer.concat([this.buffer, buf]);
             this.offset += buf.length;
         }
+        return this;
     }
 
     /**
@@ -404,19 +405,47 @@ class BinaryStream {
         return this;
     }
 
-    // todo: readLLong
-    // todo: writeLLong
+    readLLong(){
+        return this.buffer.readUInt32LE(0) + (buffer.readUInt32LE(4) << 8);
+    }
+
+    writeLLong(v){
+        let MAX_UINT32 = 0xFFFFFFFF;
+
+        let buf = Buffer.alloc(8);
+        buf.writeUInt32LE((v & MAX_UINT32), 0);
+        buf.writeUInt32LE((~~(v / MAX_UINT32)), 4);
+        this.append(buf);
+
+        return this;
+    }
 
     readString(returnBuffer = false, len = this.readUnsignedVarInt()){
         let buffer = this.buffer.slice(this.offset, this.increaseOffset(len, true));
         return returnBuffer === true ? buffer : buffer.toString();
     }
 
-    writeString(v){
-        this.writeUnsignedVarInt(v.length);
+    /**
+     * Damn this is a mess
+     * @param v {string}
+     * @param writeLengthAsShort [input=false] {boolean}
+     * @return {BinaryStream}
+     */
+    writeString(v, writeLengthAsShort = false){
+        let stream = new BinaryStream();
+
+        if(writeLengthAsShort === true){
+            stream.writeShort(v.length);
+        }else{
+            stream.writeUnsignedVarInt(v.length);
+        }
+
         let buf = Buffer.alloc(v.length);
         buf.write(v);
-        this.append(buf);
+
+        stream.append(buf);
+
+        this.append(stream.buffer);
         return this;
     }
 
