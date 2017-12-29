@@ -10,12 +10,18 @@ class Command {
         this.arguments = [];
     }
 
-    constructor(name, description, permission, aliases){
+    /**
+     * @param name        {string}
+     * @param description {string}
+     * @param permission  {string}
+     * @param aliases     {array}
+     */
+    constructor(name, description, permission, aliases = []){
         this.initVars();
         this.name = name;
         this.description = description;
         this.permission = permission;
-        this.aliases = aliases || [];
+        this.aliases = aliases;
     }
 
     getName(){
