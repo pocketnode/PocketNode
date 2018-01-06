@@ -1,0 +1,10 @@
+{
+  // force client to use resource packs
+  "force": false,
+
+  // list of packs
+  "entries": [
+    // "natural.zip",
+    // "vanilla.zip"
+  ]
+}

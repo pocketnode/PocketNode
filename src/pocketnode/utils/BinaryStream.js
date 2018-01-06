@@ -18,6 +18,10 @@ class BinaryStream {
         }
     }
 
+    read(len){
+        return this.buffer.slice(this.offset, this.increaseOffset(len, true));
+    }
+
     reset(){
         this.buffer = Buffer.alloc(0);
         this.offset = 0;
@@ -53,7 +57,7 @@ class BinaryStream {
     /**
      * @return {Buffer}
      */
-    getRemaining(){
+    readRemaining(){
         let buf = this.buffer.slice(this.offset);
         this.offset = this.buffer.length;
         return buf;
@@ -420,32 +424,24 @@ class BinaryStream {
         return this;
     }
 
-    readString(returnBuffer = false, len = this.readUnsignedVarInt()){
-        let buffer = this.buffer.slice(this.offset, this.increaseOffset(len, true));
+    readString(returnBuffer = false){
+        let buffer = this.read(this.readUnsignedVarInt());
         return returnBuffer === true ? buffer : buffer.toString();
     }
 
     /**
-     * Damn this is a mess
      * @param v {string}
-     * @param writeLengthAsShort [input=false] {boolean}
      * @return {BinaryStream}
      */
-    writeString(v, writeLengthAsShort = false){
-        let stream = new BinaryStream();
+    writeString(v){
+        this.writeUnsignedVarInt(v.length);
 
-        if(writeLengthAsShort === true){
-            stream.writeShort(v.length);
-        }else{
-            stream.writeUnsignedVarInt(v.length);
-        }
+        if(v.length === 0) return this;
 
         let buf = Buffer.alloc(v.length);
         buf.write(v);
 
-        stream.append(buf);
-
-        this.append(stream.buffer);
+        this.append(buf);
         return this;
     }
 

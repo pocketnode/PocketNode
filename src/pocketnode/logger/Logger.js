@@ -4,10 +4,10 @@ const TextFormat = pocketnode("utils/TextFormat");
 const TerminalTextFormat = pocketnode("utils/TerminalTextFormat");
 
 class Logger {
-    constructor(caller, subcaller){
-        this.debugging = false;
+    constructor(caller, subcaller = ""){
+        this.debuggingLevel = 0;
         this.caller = caller;
-        this.subcaller = subcaller || "";
+        this.subcaller = subcaller !== "" ? " " + subcaller : "";
     }
 
     emergency(){
@@ -39,8 +39,19 @@ class Logger {
     }
 
     debug(){
-        if(!this.debugging) return;
+        if(this.debuggingLevel < 1) return;
         return this.log("Debug", arguments, TerminalTextFormat.GRAY);
+    }
+
+    debugExtensive(){
+        if(this.debuggingLevel < 2) return;
+        return this.log("Debug", arguments, TerminalTextFormat.GRAY);
+    }
+
+    logError(error){
+        error = error.stack.split("\n");
+        this.error(error.shift());
+        error.forEach(trace => this.debug(trace));
     }
 
     /**
@@ -48,27 +59,22 @@ class Logger {
      * @param messages Array
      * @param color    TerminalTextFormat.COLOR
      */
-    log(level, messages, color){
+    log(level, messages, color = TerminalTextFormat.GRAY){
         if(messages.length === 0) return;
-        color = color || TerminalTextFormat.GRAY;
 
-        Array.from(messages).map(Logger.formatError).join(" ").split("\n").forEach(message => {
-            message = TextFormat.toTerminal(message) + TerminalTextFormat.RESET;
-            console.log(TerminalTextFormat.BLUE + "[" + TimeStamp("HH:mm:ss") + "]" + TerminalTextFormat.RESET + " " + color +"[" + this.caller + " > " + level + "]: " + this.subcaller + message);
-        });        
-    }
+        messages = Array.from(messages).map(message => {
+            return (typeof message === "string" ? TextFormat.toTerminal(message) + TerminalTextFormat.RESET : message);
+        });
 
-    static formatError(e){
-        if(!(e instanceof Error)) return e;
-        return e.stack;
-    }
+        log(TerminalTextFormat.BLUE + "[" + TimeStamp("HH:mm:ss") + "]" + TerminalTextFormat.RESET + " " + color +"[" + this.caller + " > " + level + "]:" + this.subcaller, messages);
 
-    setDebugging(tf){
-        if(tf === true){
-            this.debugging = true;
-        }else{
-            this.debugging = false;
+        function log(prefix, args){
+            console.log.apply(this, [prefix].concat(args));
         }
+    }
+
+    setDebugging(level){
+        this.debuggingLevel = level;
 
         return this;
     }

@@ -61,7 +61,8 @@ typings/
 players/
 plugins/
 worlds/
-server.properties.json
+resource_packs/
+pocketnode.json
 banned-*.json
 ops.json
 whitelist.json

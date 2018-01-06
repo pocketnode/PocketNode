@@ -39,19 +39,18 @@ class LoginPacket extends DataPacket {
     }
 
     _decodePayload(){
-        this.protocol = this.getStream().readInt();
+        this.protocol = this.readInt();
 
         if(this.protocol !== MinecraftInfo.PROTOCOL){
             if(this.protocol > 0xffff){
-                this.getStream().offset -= 6;
-                this.protocol = this.getStream().readInt();
+                this.offset -= 6;
+                this.protocol = this.readInt();
             }
             return;
         }
 
-        let stream = new BinaryStream(this.getStream().readString(true));
-
-        this.chainData = JSON.parse(stream.readString(false, stream.readLInt()));
+        let stream = new BinaryStream(this.readString(true));
+        this.chainData = JSON.parse(stream.read(stream.readLInt()).toString());
 
         this.chainData.chain.forEach(chain => {
             let webtoken = Utils.decodeJWT(chain);
@@ -72,11 +71,15 @@ class LoginPacket extends DataPacket {
             }
         });
 
-        this.clientDataJwt = stream.readString(false, stream.readLInt());
+        this.clientDataJwt = stream.read(stream.readLInt()).toString();
         this.clientData = Utils.decodeJWT(this.clientDataJwt);
 
         this.clientId = Isset(this.clientData.ClientRandomId) ? this.clientData.ClientRandomId : null;
         this.serverAddress = Isset(this.clientData.ServerAddress) ? this.clientData.ServerAddress : null;
+    }
+
+    handle(session){
+        return session.handleLogin(this);
     }
 }
 

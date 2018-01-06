@@ -2,6 +2,10 @@ const LoginPacket = pocketnode("network/minecraft/protocol/LoginPacket");
 const PlayStatusPacket = pocketnode("network/minecraft/protocol/PlayStatusPacket");
 const DisconnectPacket = pocketnode("network/minecraft/protocol/DisconnectPacket");
 const ResourcePacksInfoPacket = pocketnode("network/minecraft/protocol/ResourcePacksInfoPacket");
+const ResourcePackClientResponsePacket = pocketnode("network/minecraft/protocol/ResourcePackClientResponsePacket");
+const ResourcePackChunkRequestPacket = pocketnode("network/minecraft/protocol/ResourcePackChunkRequestPacket");
+const RequestChunkRadiusPacket = pocketnode("network/minecraft/protocol/RequestChunkRadiusPacket");
+const TextPacket = pocketnode("network/minecraft/protocol/TextPacket");
 
 class PacketPool {
     constructor(){
@@ -9,8 +13,8 @@ class PacketPool {
         this.registerPackets();
     }
 
-    registerPacket(id, packet){
-        this.packetPool.set(id, packet);
+    registerPacket(packet){
+        this.packetPool.set(packet.getId(), packet);
     }
 
     getPacket(id){
@@ -22,12 +26,16 @@ class PacketPool {
     }
 
     registerPackets(){
-        this.registerPacket(LoginPacket.getId(), LoginPacket);
-        this.registerPacket(PlayStatusPacket.getId(), PlayStatusPacket);
+        this.registerPacket(LoginPacket);
+        this.registerPacket(PlayStatusPacket);
         //serverclienthandshake
         //viseversa
-        this.registerPacket(DisconnectPacket.getId(), DisconnectPacket);
-        this.registerPacket(ResourcePacksInfoPacket.getId(), ResourcePacksInfoPacket);
+        this.registerPacket(DisconnectPacket);
+        this.registerPacket(ResourcePacksInfoPacket);
+        this.registerPacket(ResourcePackClientResponsePacket);
+        this.registerPacket(ResourcePackChunkRequestPacket);
+        this.registerPacket(RequestChunkRadiusPacket);
+        this.registerPacket(TextPacket);
     }
 }
 

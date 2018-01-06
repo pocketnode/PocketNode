@@ -1,15 +1,16 @@
 const DataPacket = pocketnode("network/minecraft/protocol/DataPacket");
 const MinecraftInfo = pocketnode("network/minecraft/Info");
 
-class ResourcePacksInfoPacket extends DataPacket {
+class ResourcePackStackPacket extends DataPacket {
     static getId(){
-        return MinecraftInfo.RESOURCE_PACKS_INFO_PACKET;
+        return MinecraftInfo.RESOURCE_PACK_STACK_PACKET;
     }
 
     initVars(){
         this.mustAccept = false;
-        this.behaviorPackEntries = [];
-        this.resourcePackEntries = [];
+
+        this.behaviorPackStack = [];
+        this.resourcePackStack = [];
     }
 
     constructor(){
@@ -19,23 +20,21 @@ class ResourcePacksInfoPacket extends DataPacket {
 
     _encodePayload(){
         this.writeBool(this.mustAccept);
-        this.writeLShort(this.behaviorPackEntries.length);
-        this.behaviorPackEntries.forEach(entry => {
+
+        this.writeUnsignedVarInt(this.behaviorPackStack.length);
+        this.behaviorPackStack.forEach(entry => {
             this.writeString(entry.getPackId())
                 .writeString(entry.getPackVersion())
-                .writeLLong(entry.getPackSize())
-                .writeString("")
                 .writeString("");
         });
-        this.writeLShort(this.resourcePackEntries.length);
-        this.resourcePackEntries.forEach(entry => {
+
+        this.writeUnsignedVarInt(this.resourcePackStack.length);
+        this.resourcePackStack.forEach(entry => {
             this.writeString(entry.getPackId())
                 .writeString(entry.getPackVersion())
-                .writeLLong(entry.getPackSize())
-                .writeString("")
                 .writeString("");
         });
     }
 }
 
-module.exports = ResourcePacksInfoPacket;
+module.exports = ResourcePackStackPacket;

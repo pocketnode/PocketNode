@@ -37,7 +37,7 @@ class PluginBase extends Plugin {
             this.dataFolder = dataFolder;
             this.file = file;
             this.configFile = this.dataFolder + "config.json";
-            this.logger = new PluginLogger(this);
+            this.logger = new PluginLogger(server, this);
         }
     }
 
@@ -149,7 +149,7 @@ class PluginBase extends Plugin {
     }
 
     reloadConfig(){
-        this.config = new Config(this.configFile);
+        this.config = new Config(this.configFile, Config.JSON);
         if(this.resourceExists("config.json")){
             this.getConfig().setDefaults(JSON.parse(this.getResource("config.json")));
         }

@@ -1,5 +1,4 @@
 const DataPacket = pocketnode("network/minecraft/protocol/DataPacket");
-
 const MinecraftInfo = pocketnode("network/minecraft/Info");
 
 class PlayStatusPacket extends DataPacket {
@@ -31,19 +30,19 @@ class PlayStatusPacket extends DataPacket {
     }
 
     _decodePayload(){
-        this.status = this.getStream().readInt();
+        this.status = this.readInt();
     }
 
     _encodeHeader(){
         if(this.protocol < 130){
-            this.getStream().writeByte(this.getId());
+            this.writeByte(this.getId());
         }else{
             super._encodeHeader();
         }
     }
 
     _encodePayload(){
-        this.getStream().writeInt(this.status);
+        this.writeInt(this.status);
     }
 }
 

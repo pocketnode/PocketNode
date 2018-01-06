@@ -1,6 +1,5 @@
 const MinecraftInfo = pocketnode("network/minecraft/Info");
-const Config = pocketnode("utils/Config").Config;
-const ConfigTypes = pocketnode("utils/Config").Types;
+const Config = pocketnode("utils/Config");
 
 const PluginManager = pocketnode("plugin/PluginManager");
 const SourcePluginLoader = pocketnode("plugin/SourcePluginLoader");
@@ -18,47 +17,65 @@ const PluginsCommand = pocketnode("command/defaults/PluginsCommand");
 const Player = pocketnode("player/Player");
 const PlayerList = pocketnode("player/PlayerList");
 
+const ResourcePackManager = pocketnode("resourcepacks/ResourcePackManager");
+
 const SFS = pocketnode("utils/SimpleFileSystem");
 
 class Server {
     initVars(){
-        this.interfaces = {};
+        this.PocketNode = {};
 
-        this.banned = {};
-        this.ops = {};
-        this.whitelist = {};
+        this._bannedIps = {};
+        this._bannedNames = {};
+        this._ops = {};
+        this._whitelist = {};
+        
+        this._running = true;
+        this._stopped = false;
 
-        this.running = true;
-        this.stopped = false;
+        this._pluginManager = {};
+        
+        this._scheduler = {}; //todo
 
-        this.pluginManager = {};
+        this._tickCounter = 0;
+        this._tickAverage = new Array(20).fill(20);
+        this._useAverage = new Array(20).fill(0);
+        this._currentTPS = 20;
+        this._currentUse = 0;
 
-        this.tickCounter = 0;
-        this.tickAverage = new Array(20).fill(20);
-        this.useAverage = new Array(20).fill(0);
-        this.currentTPS = 20;
-        this.currentUse = 0;
+        this._logger = {};
+        this._debuggingLevel = 0;
 
-        this.logger = {};
+        this._consoleCommandReader = {};
 
-        this.onlineMode = false;
-        this.serverId = Math.floor((Math.random() * 99999999)+1);
+        this._commandMap = {};
 
-        this.paths = {};
-        this.properties = {};
+        this._resourcePackManager = {};
+        
+        this._onlineMode = false;
 
-        this.levels = new Map();
-        this.players = new PlayerList();
-        this.loggedInPlayers = new PlayerList();
-        this.playerList = new PlayerList();
+        this._raknetAdapter = {};
+        
+        this._serverId = Math.floor((Math.random() * 99999999)+1);
+
+        this._paths = {};
+        this._config = {};
+
+        this._maxPlayers = -1;
+        
+        this._players = new PlayerList();
+        this._loggedInPlayers = new PlayerList();
+        this._playerList = new PlayerList();
+
+        this._levels = new Map();
     }
 
     constructor(PocketNode, logger, paths){
         this.initVars();
 
         this.PocketNode = PocketNode;
-        this.logger = logger;
-        this.paths = paths;
+        this._logger = logger;
+        this._paths = paths;
 
         if(!SFS.dirExists(this.getDataPath() + "worlds/")){
             SFS.mkdir(this.getDataPath() + "worlds/");
@@ -68,66 +85,66 @@ class Server {
             SFS.mkdir(this.getDataPath() + "players/");
         }
 
-        if(!SFS.dirExists(this.paths.plugins)){
-            SFS.mkdir(this.paths.plugins);
+        if(!SFS.dirExists(this._paths.plugins)){
+            SFS.mkdir(this._paths.plugins);
         }
 
         this.getLogger().info("Loading " + this.getName() + " a Minecraft: Bedrock Edition server for version " + this.getVersion());
 
-        this.getLogger().info("Loading server properties...");
-        this.properties = new Config(this.getDataPath() + "server.properties.json", ConfigTypes.JSON, {
-            motd: this.getName() + " Server",
-            ip: "0.0.0.0",
-            port: 19132,
-            whitelist: false,
-            max_players: 20,
-            gamemode: 0,
-            is_debugging: false
-        });
-        this.getLogger().setDebugging(this.properties.get("is_debugging", false));
+        this.getLogger().info("Loading server configuration...");
+        if(!SFS.fileExists(this._paths.data + "pocketnode.json")){
+            SFS.copy(this._paths.file + "pocketnode/resources/pocketnode.json", this._paths.data + "pocketnode.json");
+        }
+        this._config = new Config(this.getDataPath() + "pocketnode.json", Config.JSON, {});
+        this._debuggingLevel = this._config.getNested("debugging.level", 0);
 
-        //this.interfaces.scheduler
+        this.getLogger().setDebugging(this._debuggingLevel);
 
-        this.ops = new Config(this.getDataPath() + "ops.json", ConfigTypes.JSON);
-        this.whitelist = new Config(this.getDataPath() + "whitelist.json", ConfigTypes.JSON);
-        this.banned.names = new Config(this.getDataPath() + "banned-names.json", ConfigTypes.JSON);
-        this.banned.ips = new Config(this.getDataPath() + "banned-ips.json", ConfigTypes.JSON);
+        //this._scheduler
 
-        process.stdout.write("\x1b]0;" + this.getName() + " " + this.getPocketNodeVersion() + "\x07");
+        this._ops = new Config(this.getDataPath() + "ops.json", Config.JSON);
+        this._whitelist = new Config(this.getDataPath() + "whitelist.json", Config.JSON);
+        this._bannedNames = new Config(this.getDataPath() + "banned-names.json", Config.JSON);
+        this._bannedIps = new Config(this.getDataPath() + "banned-ips.json", Config.JSON);
+        this._maxPlayers = this._config.getNested("server.max-players", 20);
+        this._onlineMode = this._config.getNested("server.online-mode", true);
 
-        this.getLogger().debug("Server id:", this.serverId);
+        if(!TRAVIS_BUILD) process.stdout.write("\x1b]0;" + this.getName() + " " + this.getPocketNodeVersion() + "\x07");
+
+        this.getLogger().debug("Server Id:", this._serverId);
 
         this.getLogger().info("Starting server on " + this.getIp() + ":" + this.getPort());
 
-        this.interfaces.RakNetAdapter = new RakNetAdapter(this);
+        this._raknetAdapter = new RakNetAdapter(this);
 
         this.getLogger().info("This server is running " + this.getName() + " version " + this.getPocketNodeVersion() + " \"" + this.getCodeName() + "\" (API " + this.getApiVersion() + ")");
         this.getLogger().info("PocketNode is distributed under the GPLv3 License.");
 
-        this.interfaces.CommandMap = new CommandMap(this);
+        this._commandMap = new CommandMap(this);
         this.registerDefaultCommands();
-        this.interfaces.ConsoleCommandReader = new ConsoleCommandReader(this);
 
-        this.interfaces.PluginManager = new PluginManager(this);
-        this.interfaces.PluginManager.registerLoader(SourcePluginLoader);
-        this.interfaces.PluginManager.registerLoader(ScriptPluginLoader);
-        this.interfaces.PluginManager.loadPlugins(this.getPluginPath());
-        this.interfaces.PluginManager.enablePlugins(); //load order STARTUP
+        this._consoleCommandReader = new ConsoleCommandReader(this);
+
+        this._resourcePackManager = new ResourcePackManager(this, this.getDataPath() + "resource_packs/");
+
+        this._pluginManager = new PluginManager(this);
+        this._pluginManager.registerLoader(SourcePluginLoader);
+        this._pluginManager.registerLoader(ScriptPluginLoader);
+        this._pluginManager.loadPlugins(this.getPluginPath());
+        this._pluginManager.enablePlugins(); //load order STARTUP
 
         //levels load here
 
         //enable plugins POSTWORLD
 
         this.start();
-
-        // plugin stuff here
     }
 
     start(){
 
         //block banned ips
 
-        this.tickCounter = 0;
+        this._tickCounter = 0;
 
         this.getLogger().info("Done ("+(Date.now() - this.PocketNode.START_TIME)+"ms)!");
 
@@ -144,17 +161,17 @@ class Server {
      * @return {boolean}
      */
     isRunning(){
-        return this.running;
+        return this._running;
     }
 
     shutdown(){
-        if(!this.running) return;
+        if(!this._running) return;
 
         this.getLogger().info("Shutting down...");
-        this.interfaces.RakNetAdapter.shutdown();
-        this.interfaces.PluginManager.disablePlugins();
+        this._raknetAdapter.shutdown();
+        this._pluginManager.disablePlugins();
 
-        this.running = false;
+        this._running = false;
 
         process.exit(); // fix this later
     }
@@ -205,32 +222,31 @@ class Server {
      * @return {CommandMap}
      */
     getCommandMap(){
-        return this.interfaces.CommandMap;
+        return this._commandMap;
     }
 
     getPluginManager(){
-        return this.interfaces.PluginManager;
+        return this._pluginManager;
     }
 
     /**
      * @return {string}
      */
     getDataPath(){
-        return this.paths.data;
+        return this._paths.data;
     }
-
-    /**
-     * @return {string}
-     */
+    getFilePath(){
+        return this._paths.file;
+    }
     getPluginPath(){
-        return this.paths.plugins;
+        return this._paths.plugins;
     }
 
     /**
      * @return {number}
      */
     getMaxPlayers(){
-        return this.properties.get("max_players", 20);
+        return this._maxPlayers;
     }
 
     /**
@@ -239,7 +255,7 @@ class Server {
      * @return {boolean}
      */
     getOnlineMode(){
-        return this.onlineMode;
+        return this._onlineMode;
     }
 
     /**
@@ -255,49 +271,60 @@ class Server {
      * @return {string}
      */
     getIp(){
-        return this.properties.get("ip", "0.0.0.0");
+        return this._config.getNested("server.ip", "0.0.0.0");
     }
 
     /**
      * @return {number}
      */
     getPort(){
-        return this.properties.get("port", 19132);
+        return this._config.getNested("server.port", 19132);
     }
 
     /**
      * @return {number}
      */
     getServerId(){
-        return this.serverId;
+        return this._serverId;
+    }
+
+    getGamemode(){
+        return this._config.getNested("server.gamemode", 1);
     }
 
     /**
      * @return {boolean}
      */
     hasWhitelist(){
-        return this.properties.get("whitelist", false);
+        return this._config.getNested("server.whitelist", false);
     }
 
     /**
      * @return {string}
      */
     getMotd(){
-        return this.properties.get("motd", this.PocketNode.NAME + " Server");
+        return this._config.getNested("server.motd", this.PocketNode.NAME + " Server");
     }
 
     /**
      * @return {Logger}
      */
     getLogger(){
-        return this.logger;
+        return this._logger;
     }
 
     /**
      * @return {Array}
      */
     getOnlinePlayers(){
-        return Array.from(this.playerList.values());
+        return Array.from(this._playerList.values());
+    }
+
+    /**
+     * @return {Array}
+     */
+    getLoggedInPlayers(){
+        return Array.from(this._loggedInPlayers.values());
     }
 
     /**
@@ -315,6 +342,19 @@ class Server {
     }
 
     /**
+     * @return {ResourcePackManager}
+     */
+    getResourcePackManager(){
+        return this._resourcePackManager;
+    }
+
+    broadcastMessage(message, recipients = this.getOnlinePlayers()){
+        recipients.forEach(recipient => recipient.sendMessage(message));
+
+        return recipients.length;
+    }
+
+    /**
      * @param name {string}
      * @return {Player}
      */
@@ -324,7 +364,7 @@ class Server {
         let found = null;
         let delta = 20; // estimate nametag length
 
-        for(let [username, player] of this.playerList){
+        for(let [username, player] of this._playerList){
             if(username.indexOf(name) === 0){
                 let curDelta = username.length - name.length;
                 if(curDelta < delta){
@@ -347,8 +387,8 @@ class Server {
     getPlayerExact(name){
         name = name.toLowerCase();
 
-        if(this.playerList.has(name)){
-            return this.playerList.get(name);
+        if(this._playerList.has(name)){
+            return this._playerList.get(name);
         }
 
         return null;
@@ -362,7 +402,7 @@ class Server {
         partialName = partialName.toLowerCase();
         let matchedPlayers = [];
 
-        for(let [username, player] of this.playerList){
+        for(let [username, player] of this._playerList){
             if(username === partialName){
                 matchedPlayers = [player];
                 break;
@@ -377,26 +417,26 @@ class Server {
     addPlayer(id, player){
         CheckTypes([Player, player]);
 
-        this.players.addPlayer(id, player);
+        this._players.addPlayer(id, player);
     }
 
     addOnlinePlayer(player){
         CheckTypes([Player, player]);
 
-        this.playerList.addPlayer(player.getLowerCaseName(), player);
+        this._playerList.addPlayer(player.getLowerCaseName(), player);
     }
 
     removeOnlinePlayer(player){
         CheckTypes([Player, player]);
 
-        this.playerList.removePlayer(player.getLowerCaseName()); // todo
+        this._playerList.removePlayer(player.getLowerCaseName()); // todo
     }
 
     removePlayer(player){
         CheckTypes([Player, player]);
 
-        if(this.players.hasPlayer(player)){
-            this.players.removePlayer(this.players.getPlayerIdentifier(player));
+        if(this._players.hasPlayer(player)){
+            this._players.removePlayer(this._players.getPlayerIdentifier(player));
         }
     }
 
@@ -404,45 +444,43 @@ class Server {
      * @return {PlayerList}
      */
     getPlayerList(){
-        return this.players;
+        return this._players;
     }
 
     /**
      * @return {PlayerList}
      */
     getOnlinePlayerList(){
-        return this.playerList;
+        return this._playerList;
     }
 
     /**
      * @return {Config}
      */
     getNameBans(){
-        return this.banned.names;
+        return this._bannedNames;
     }
 
     /**
      * @return {Config}
      */
     getIpBans(){
-        return this.banned.ips;
+        return this._bannedIps;
     }
 
-    getGamemodeName(){
-        let gamemode;
-
-        switch(this.gamemode){
+    static getGamemodeName(mode){
+        switch(mode){
+            case Player.SURVIVAL:
+                return "Survival";
+            case Player.CREATIVE:
+                return "Creative";
+            case Player.ADVENTURE:
+                return "Adventure";
+            case Player.SPECTATOR:
+                return "Spectator";
             default:
-            case 0:
-                gamemode = "Survival";
-                break;
-
-            case 1:
-                gamemode = "Creative";
-                break;
+                return "Unknown";
         }
-
-        return gamemode;
     }
 
     tickProcessor(){
@@ -450,53 +488,58 @@ class Server {
             if(this.isRunning()){
                 this.tick();
             }else{
+                //this.forceShutdown();
                 clearInterval(int);
             }
         }, 1000 / 20);
     }
 
     getRakNetAdapter(){
-        return this.interfaces.RakNetAdapter;
+        return this._raknetAdapter;
     }
 
     tick(){
         let time = Date.now();
 
-        ++this.tickCounter;
+        ++this._tickCounter;
 
-        if((this.tickCounter % 20) === 0){
+        if((this._tickCounter % 20) === 0){
             this.titleTick();
 
-            this.currentTPS = 20;
-            this.currentUse = 0;
+            this._currentTPS = 20;
+            this._currentUse = 0;
         }
 
         let now = Date.now();
-        this.currentTPS = Math.min(20, 1 / Math.max(0.001, now - time));
-        this.currentUse = Math.min(1, (now - time) / 0.05);
+        this._currentTPS = Math.min(20, 1 / Math.max(0.001, now - time));
+        this._currentUse = Math.min(1, (now - time) / 0.05);
 
-        this.tickAverage.shift();
-        this.tickAverage.push(this.currentTPS);
-        this.useAverage.shift();
-        this.useAverage.push(this.currentUse);
+        this._tickAverage.shift();
+        this._tickAverage.push(this._currentTPS);
+        this._useAverage.shift();
+        this._useAverage.push(this._currentUse);
 
-        this.interfaces.RakNetAdapter.tick();
+        this._raknetAdapter.tick();
     }
 
     getTicksPerSecond(){
-        return Math.round_php(this.currentTPS, 2);
+        return Math.round_php(this._currentTPS, 2);
     }
 
     getTicksPerSecondAverage(){
-        return Math.round_php(this.tickAverage.reduce((a, b) => a + b, 0) / this.tickAverage.length, 2);
+        return Math.round_php(this._tickAverage.reduce((a, b) => a + b, 0) / this._tickAverage.length, 2);
     }
 
     getTickUsage(){
-        return Math.round_php(this.currentUse * 100, 2);
+        return Math.round_php(this._currentUse * 100, 2);
     }
 
     getTickUsageAverage(){
-        return Math.round_php((this.useAverage.reduce((a, b) => a + b, 0) / this.useAverage.length) * 100, 2);
+        return Math.round_php((this._useAverage.reduce((a, b) => a + b, 0) / this._useAverage.length) * 100, 2);
+    }
+
+    getCurrentTick(){
+        return this._currentTPS;
     }
 
     titleTick(){
@@ -512,7 +555,7 @@ class Server {
     batchPackets(players, packets, forceSync = false, immediate = false){
         let targets = [];
         players.forEach(player => {
-            if(player.isConnected()) targets.push(this.players.getPlayerIdentifier(player));
+            if(player.isConnected()) targets.push(this._players.getPlayerIdentifier(player));
         });
 
         if(targets.length > 0){
@@ -535,25 +578,29 @@ class Server {
 
         if(immediate){
             identifiers.forEach(id => {
-                if(this.players.has(id)){
-                    this.players.getPlayer(id).directDataPacket(pk);
+                if(this._players.has(id)){
+                    this._players.getPlayer(id).directDataPacket(pk);
                 }
             });
         }else{
             identifiers.forEach(id => {
-                if(this.players.has(id)){
-                    this.players.getPlayer(id).dataPacket(pk);
+                if(this._players.has(id)){
+                    this._players.getPlayer(id).dataPacket(pk);
                 }
             });
         }
     }
 
     onPlayerLogin(player){
-        this.loggedInPlayers.addPlayer(player.getLowerCaseName(), player); //todo unique ids
+        this._loggedInPlayers.addPlayer(player.getLowerCaseName(), player); //todo unique ids
     }
 
     onPlayerLogout(player){
-        this.loggedInPlayers.removePlayer(player.getLowerCaseName()); //todo unique id
+        this._loggedInPlayers.removePlayer(player.getLowerCaseName()); //todo unique id
+    }
+
+    onPlayerCompleteLoginSequence(player){
+
     }
 }
 

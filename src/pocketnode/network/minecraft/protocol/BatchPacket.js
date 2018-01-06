@@ -26,24 +26,24 @@ class BatchPacket extends DataPacket {
     }
 
     _decodeHeader(){
-        let packetId = this.getStream().readByte();
+        let packetId = this.readByte();
         if(packetId !== this.getId()){
             throw new Error("Received "+packetId+" as the id, expected "+this.getId());
         }
     }
 
     _decodePayload(){
-        let data = this.getStream().getRemaining();
+        let data = this.readRemaining();
         this.payload = new BinaryStream(Zlib.unzipSync(data));
     }
 
     _encodeHeader(){
-        this.getStream().writeByte(this.getId());
+        this.writeByte(this.getId());
     }
 
     _encodePayload(){
         let buf = Zlib.deflateSync(this.payload.getBuffer(), {level: this._compressionLevel});
-        this.getStream().append(buf);
+        this.append(buf);
     }
 
     addPacket(packet){
@@ -55,8 +55,8 @@ class BatchPacket extends DataPacket {
             packet.encode();
         }
 
-        this.payload.writeUnsignedVarInt(packet.getStream().length);
-        this.payload.append(packet.getStream().getBuffer());
+        this.payload.writeUnsignedVarInt(packet.length);
+        this.payload.append(packet.getBuffer());
     }
 
     getPackets(){
@@ -65,6 +65,29 @@ class BatchPacket extends DataPacket {
             pks.push(this.payload.readString(true));
         }
         return pks;
+    }
+
+    handle(session, logger){
+        if(this.payload.length === 0){
+            return false;
+        }
+
+        this.getPackets().forEach(buf => {
+            let pk = session.raknetAdapter.packetPool.getPacket(buf[0]);
+
+            if(pk instanceof DataPacket){
+                if(!pk.canBeBatched()){
+                    throw new Error("Received invalid "+pk.getName()+" inside BatchPacket");
+                }
+
+                pk.setBuffer(buf, 1);
+                session.handleDataPacket(pk);
+            }else{
+                logger.debug("Got unhandled packet: 0x"+buf.slice(0, 1).toString("hex"));
+            }
+        });
+
+        return true;
     }
 }
 

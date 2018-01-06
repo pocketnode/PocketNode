@@ -16,15 +16,19 @@ class DisconnectPacket extends DataPacket {
         this.initVars();
     }
 
+    canBeSentBeforeLogin(){
+        return true;
+    }
+
     _decodePayload(){
-        this.hideDisconnectionScreen = this.getStream().readBool();
-        this.message = this.getStream().readString();
+        this.hideDisconnectionScreen = this.readBool();
+        this.message = this.readString();
     }
 
     _encodePayload(){
-        this.getStream().writeBool(this.hideDisconnectionScreen);
+        this.writeBool(this.hideDisconnectionScreen);
         if(!this.hideDisconnectionScreen){
-            this.getStream().writeString(this.message);
+            this.writeString(this.message);
         }
     }
 }
