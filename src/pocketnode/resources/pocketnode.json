@@ -1,0 +1,18 @@
+{
+  "server": {
+    "motd": "PocketNode Server",
+    "ip": "0.0.0.0",
+    "port": 19132,
+    "whitelist": false,
+    "max-players": 20,
+    "gamemode": 1,
+    "online-mode": true
+  },
+  "network": {
+    "batch-threshold": 256,
+    "compression-level": 7
+  },
+  "debugging": {
+    "level": 0
+  }
+}

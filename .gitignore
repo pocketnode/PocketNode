@@ -62,7 +62,7 @@ players/
 plugins/
 worlds/
 resource_packs/
-pocketnode.json
+/pocketnode.json
 banned-*.json
 ops.json
 whitelist.json
