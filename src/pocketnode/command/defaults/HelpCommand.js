@@ -3,7 +3,7 @@ const TextFormat = pocketnode("utils/TextFormat");
 
 class HelpCommand extends Command {
     constructor(){
-        super("help", Server.translate.getString("command.help"), "pocketnode.command.help", ["?"]);
+        super("help", Server.translate.getString("command.help.desc"), "pocketnode.command.help", ["?"]);
         this.addArgument("command", "string", false);
         this.addArgument("page", "integer", false);
     }
