@@ -3,7 +3,7 @@ const TextFormat = pocketnode("utils/TextFormat");
 
 class HelpCommand extends Command {
     constructor(){
-        super("help", "Show available commands for this server.", "pocketnode.command.help", ["?"]);
+        super("help", Server.translate.getString("command.help"), "pocketnode.command.help", ["?"]);
         this.addArgument("command", "string", false);
         this.addArgument("page", "integer", false);
     }
@@ -45,7 +45,9 @@ class HelpCommand extends Command {
 
             if(page < 1) page = 1;
 
-            sender.sendMessage(TextFormat.YELLOW + "----- Help (" + page + " of " + Math.ceil(sorted_commands.length / linesPerPage) + ") -----");
+            sender.sendMessage(TextFormat.YELLOW + "----- " +
+                Server.translate.getString("command.help.title")
+                + " (" + page + " of " + Math.ceil(sorted_commands.length / linesPerPage) + ") -----");
             sorted_commands.slice(((page*linesPerPage)-linesPerPage), (page*linesPerPage)).forEach(command => {
                 sender.sendMessage(TextFormat.GOLD + "/" + command.getName() + TextFormat.WHITE + ": " + command.getDescription());
             });
@@ -53,12 +55,20 @@ class HelpCommand extends Command {
             if(sender.getServer().getCommandMap().commandExists(command.toLowerCase())){
                 let cmd = sender.getServer().getCommandMap().getCommand(command.toLowerCase());
                 if(true){ //test for perms
-                    sender.sendMessage(TextFormat.YELLOW + "----- Help: /" + cmd.getName() + " -----");
-                    sender.sendMessage(TextFormat.GOLD + "Description: " + TextFormat.WHITE + cmd.getDescription());
-                    sender.sendMessage(TextFormat.GOLD + "Usage: " + TextFormat.WHITE + cmd.getUsage().substr(9));
+                    sender.sendMessage(TextFormat.YELLOW + "----- " +
+                        Server.translate.getString("command.help.title")
+                        +": /" + cmd.getName() + " -----");
+                    sender.sendMessage(TextFormat.GOLD +
+                        Server.translate.getString("command.desc")
+                        + ": " + TextFormat.WHITE + cmd.getDescription());
+                    sender.sendMessage(TextFormat.GOLD +
+                        Server.translate.getString(command.usage)
+                        + ": " + TextFormat.WHITE + cmd.getUsage().substr(9));
                 }
             }else{
-                sender.sendMessage(TextFormat.RED + "No help for " + command.toLowerCase());
+                sender.sendMessage(TextFormat.RED +
+                    Server.translate.getString("command.help.noHelp")
+                    + " " + command.toLowerCase());
             }
         }
     }

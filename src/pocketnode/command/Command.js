@@ -33,7 +33,9 @@ class Command {
     }
 
     getUsage(){
-        let usage = TextFormat.RED + "Usage: /" + this.getName() + " ";
+        let usage = TextFormat.RED +
+            Server.translate.getString("commandInfo.usage")
+            + ": /" + this.getName() + " ";
 
         this.getArguments().forEach(argument => {
             if(argument.isRequired()){

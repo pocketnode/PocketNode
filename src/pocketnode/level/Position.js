@@ -35,9 +35,7 @@ class Position extends Vector3
 	 */
     constructor(x = 0, y = 0, z = 0, level = null)
     {
-        this.x = x;
-        this.y = y;
-        this.z = z;
+        super(x, y, z);
         this.level = level;
     }
 

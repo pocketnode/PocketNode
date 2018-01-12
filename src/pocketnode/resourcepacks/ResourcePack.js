@@ -13,7 +13,9 @@ class ResourcePack {
 
         let missingMethods;
         if((missingMethods = ClassHasMethod(this.constructor, methods)) !== true){
-            throw new Error(this.constructor.name + " is missing the following method(s): " + missingMethods.join(", "));
+            throw new Error(
+                Server.translate.getString("pocketnode.resourcePack.missingMethod",
+                    [this.constructor.name, missingMethods.join(", ")]));
         }
     }
 }

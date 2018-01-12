@@ -74,7 +74,7 @@ class Player extends CommandSender {
 
     getLeaveMessage(){
         if(this.joined){
-            return TextFormat.YELLOW + this.getName() + " has left the game";
+            return TextFormat.YELLOW + Server.translate.getString("pocketnode.player.leave", [this.getName()]);
         }
         return "";
     }
@@ -131,7 +131,7 @@ class Player extends CommandSender {
                 this.sendPlayStatus(PlayStatusPacket.LOGIN_FAILED_SERVER, true);
             }
 
-            this.close("", "Incompatible Protocol", false);
+            this.close("", Server.translate.getString("pocketnode.player.invalidProtocol"), false);
 
             return true;
         }
@@ -150,7 +150,7 @@ class Player extends CommandSender {
         //todo: uuids
 
         if(Player.isValidUserName(packet.username)){
-            this.close("", "Invalid Username");
+            this.close("", Server.translate.getString("pocketnode.player.invalidUsername"));
             return true;
         }
 
@@ -169,7 +169,7 @@ class Player extends CommandSender {
         );
 
         if(!skin.isValid()){
-            this.close("", "Invalid Skin");
+            this.close("", Server.translate.getString("pocketnode.player.invalidSkin"));
             return true;
         }
 
@@ -287,20 +287,22 @@ class Player extends CommandSender {
         if(this.closed) return;
 
         if(!isValid){
-            this.close("", "Invalid Session");
+            this.close("", Server.translate.getString("pocketnode.player.invalidSession"));
             return;
         }
 
         this._authenticated = isAuthenticated;
 
         if(!isAuthenticated){
-            if(this.server.requiresAuthentication() && this.kick("This server requires authentication.", false)){
+            if(this.server.requiresAuthentication() && this.kick(
+                    Server.translate.getString("pocketnode.player.authRequired"
+                ), false)){
                 return;
             }
 
-            this.server.getLogger().debug(this.getName() + " is NOT logged into to Xbox Live");
+            this.server.getLogger().debug(Server.translate.getString("pocketnode.player.xboxNotLogged", [this.getName()]));
             if(packet.xuid === ""){
-                this.server.getLogger().error(this.getName() + " should have an XUID, but none found");
+                this.server.getLogger().error(Server.translate.getString("pocketnode.player.xuidEmpty", [this.getName()]));
             }
             this._xuid = packet.xuid;
         }
@@ -311,13 +313,14 @@ class Player extends CommandSender {
     _processLogin(){
         for(let [,p] of this.server._loggedInPlayers){
             if(p !== this && p._iusername === this._iusername){
-                if(p.kick("Logged in from another location") === false){
-                    this.close(this.getLeaveMessage(), "Logged in from another location");
+                if(p.kick(Server.translate.getString("pocketnode.player.loginAnotherLocation")) === false){
+                    this.close(this.getLeaveMessage(),
+                        Server.translate.getString("pocketnode.player.loginAnotherLocation"));
                     return;
                 }
             }else if(p.loggedIn/* && uuids equal*/){
-                if(p.kick("Logged in from another location") === false){
-                    this.close(this.getLeaveMessage(), "Logged in from another location");
+                if(p.kick(Server.translate.getString("pocketnode.player.loginAnotherLocation")) === false){
+                    this.close(this.getLeaveMessage(), Server.translate.getString("pocketnode.player.loginAnotherLocation"));
                     return;
                 }
             }
@@ -327,7 +330,7 @@ class Player extends CommandSender {
 
         this.loggedIn = true;
         this.server.onPlayerLogin(this);
-        this.server.getLogger().debug("Player logged in: "+this._username);
+        this.server.getLogger().debug(Server.translate.getString("pocketnode.player.logged", [this._username]));
 
         let pk = new ResourcePacksInfoPacket();
         let manager = this.server.getResourcePackManager();
@@ -363,7 +366,7 @@ class Player extends CommandSender {
         if(packet.getName().toLowerCase() !== "batchpacket") this.server.getLogger().debug("Sending "+packet.getName()+" to "+(this.getName()!==""?this.getName():this._ip+":"+this._port));
 
         if(!this.loggedIn && !packet.canBeSentBeforeLogin()){
-            throw new Error("Attempted to send "+packet.getName()+" to "+this.getName()+" before they got logged in.");
+            throw new Error(Server.translate.getString("packet.attempt", [packet.getName(), this.getName()]));
         }
 
         let identifier = this.getSessionAdapter().sendPacket(packet, needACK, immediate);
@@ -380,13 +383,14 @@ class Player extends CommandSender {
         let message;
         if(isAdmin){
             if(true){//todo: not is banned
-                message = "Kicked by admin." + (reason !== "" ? " Reason: " + reason : "");
+                message = Server.translate.getString("pocketnode.player.kick") +
+                    (reason !== "" ? Server.translate.getString("pocketnode.player.reason", [reason]) : "");
             }else{
                 message = reason;
             }
         }else{
             if(reason === ""){
-                message = "Unknown Reason.";
+                message = Server.translate.getString("pocketnode.player.unknownReason");
             }else{
                 message = reason;
             }
@@ -413,7 +417,9 @@ class Player extends CommandSender {
                     try{
                         //save player data
                     }catch(e){
-                        this.server.getLogger().error("Failed to save player data for "+this.getName());
+                        this.server.getLogger().error(
+                            Server.translate.getString("pocketnode.player.failedSaveData", [this.getName()])
+                        );
                         this.server.getLogger().logError(e);
                     }
 
@@ -452,7 +458,9 @@ class Player extends CommandSender {
         pk.radius = this._viewDistance;
         this.dataPacket(pk);
 
-        this.server.getLogger().debug("Setting view distance for " + this.getName() + " to " + distance);
+        this.server.getLogger().debug(
+            Server.translate.getString("pocketnode.player.viewDistance", [this.getName(), distance])
+        );
     }
 
     completeLoginSequence(){

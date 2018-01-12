@@ -16,11 +16,13 @@ class ScriptPluginLoader extends PluginLoader {
         if((manifest = this.getPluginManifest(file)) instanceof PluginManifest){
             let logger = this.server.getLogger();
 
-            logger.info("Loading plugin " + manifest.getFullName());
+            logger.info(
+                Server.translate.getString("pocketnode.plugin.loading", manifest.getFullName()));
             let dataFolder = Path.dirname(file) + "/" + manifest.getName();
 
             if(FileSystem.existsSync(dataFolder) && !FileSystem.lstatSync(dataFolder).isDirectory()){
-                logger.warning("Data folder '" + dataFolder + "' for plugin " + manifest.getName() + " exists but is not a directory");
+                logger.warning(
+                    Server.translate.getString("pocketnode.plugin.folderNotEx", [dataFolder, manifest.getName()]));
                 return null;
             }
 
@@ -61,8 +63,8 @@ class ScriptPluginLoader extends PluginLoader {
 
     enablePlugin(plugin){
         if(plugin instanceof PluginBase && !plugin.isEnabled()){
-            this.server.getLogger().info("Enabling " + plugin.getFullName());
-
+            this.server.getLogger().info(
+                Server.translate.getString("pocketnode.plugin.enable", [plugin.getFullName()]));
             plugin.setEnabled(true);
 
             //todo: event stuff: call PluginEnableEvent
@@ -71,7 +73,8 @@ class ScriptPluginLoader extends PluginLoader {
 
     disablePlugin(plugin){
         if(plugin instanceof PluginBase && plugin.isEnabled()){
-            this.server.getLogger().info("Disabling " + plugin.getFullName());
+            this.server.getLogger().info(
+                Server.translate.getString("pocketnode.plugin.disable", [plugin.getFullName()]));
 
             //todo: event stuff: call PluginDisableEvent
 

@@ -21,8 +21,8 @@ class Location extends Position
 
     initVars()
     {
-        this.yaw;
-        this.pitch;
+        this.yaw   = 0;
+        this.pitch = 0;
     }
 
     /**
@@ -35,11 +35,10 @@ class Location extends Position
 	 * @param {Number}   pitch
 	 * @param {Level}    level
 	 */
-	constructor(x = 0, y = 0, z = 0, yaw = 0.0, pitch = 0.0, level = null)
-    {
+	constructor(x = 0, y = 0, z = 0, yaw = 0.0, pitch = 0.0, level = null)  {
+	    super(x, y, z, level);
 		this.yaw = yaw;
 		this.pitch = pitch;
-		super(x, y, z, level);
 	}
 
     /**
@@ -89,3 +88,5 @@ class Location extends Position
     }
 
 }
+
+module.exports = Location;

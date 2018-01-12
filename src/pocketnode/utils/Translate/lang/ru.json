@@ -1,0 +1,85 @@
+{
+  "command": {
+    "plugins": {
+      "desc": "Список плагинов на этом сервере",
+      "text": "Плагины"
+    },
+    "help": {
+      "desc": "Подскажет команды на этом сервере",
+      "title": "Помощь",
+      "noHelp": "Нет помощи для"
+    },
+    "stop": {
+      "desc": "Остановка сервера"
+    }
+  },
+  "commandInfo": {
+    "desc": "Описание",
+    "usage": "Использование",
+    "invalidParameter": "Команда {var0} не наследует Command!"
+  },
+  "server": {
+    "done": "Загружено",
+    "id": "ID сервера",
+    "starting": "Запуск сервера на",
+    "running": "Сервер {var0} запущен на версии {var1} \"{var2}\" (API {var3})",
+    "license": "PocketNode распространяется под лицензией GPLv3",
+    "shutdown": "Выключение...",
+    "language": "Язык: {var0}"
+  },
+
+  "pocketnode": {
+    "player": {
+      "logged": "Игрок {var0} вошел в систему",
+      "leave": "{var0} Вышел из игры",
+      "kick": "Выгнан администратором.",
+      "reason": "Причина:",
+      "unknownReason": "Неизвестная причина.",
+      "invalidProtocol": "Несовместимый протокол",
+      "invalidUsername": "Неверное имя пользователя",
+      "invalidSkin": "Неверный скин",
+      "invalidSession": "Неверная сессия",
+      "authRequired": "Этот сервер требует аутентификации",
+      "xboxNotLogged": "{var0} НЕ вошел в XBOX",
+      "xuidEmpty": "{var0} должен иметь XUID, но он не найден",
+      "loginAnotherLocation": "Вход с другого места",
+      "failedSaveData": "Ошибка сохранения данных для {var0}",
+      "viewDistance": "Для {var0} установлена дистанция обзора на {var1}"
+    },
+    "packet": {
+      "attempt": "Attempted to send {var0} to {var1} before they got logged in."
+    },
+    "plugin": {
+      "manifest": {
+        "invalidName": "Invalid PluginManifest name"
+      },
+      "loading": "Loading plugin {var0}",
+      "enable": "Enabling {var0}",
+      "disable": "Disabling {var0}",
+      "couldntLoad": "Couldn't load plugin {var0}: main not found!",
+      "folderNotEx": "Data folder '{var0}' for plugin {var1} exists but is not a directory",
+      "missingMethod": "Plugin is missing the following method(s): {var0}",
+      "errorLoad": "Error trying to load {var0}",
+      "errorLoading": "There was an error loading a plugin.",
+      "unableLoad": "Unable to load plugin {var0}",
+      "invalidName": "Plugin name contains invalid keyword!",
+      "spaceInName": "Warning for '{var0}': It is discouraged to have a plugin with a space in the name!",
+      "already": "There is already another plugin with the name '{var0}'",
+      "incompatibleApi": "Cannot load '{var0}': Incompatible Api!"
+    },
+    "resourcePack": {
+      "manifest": {
+        "notFound": "Could not load resource pack from {var0}: manifest.json not found in the archive root",
+        "invalid": "Could not load resource pack from {var0}: manifest.json is invalid or incomplete"
+      },
+      "loading": "Загрузка ресурс-паков...",
+      "missingMethod": "{var0} is missing the following method(s): {var1}",
+      "dirNotSupported": "Skipped resource entry {var0} due to directory resource packs currently unsupported",
+      "formatNotSupported": "Skipped resource entry {var0} due to format not supported",
+      "fileOrDirNotFound": "Skipped resource entry {var0} due to file or directory not found",
+      "fileNotFound": "Couldn't open {var0}: file not found",
+      "errorOpening": "Error opening resource pack {var0}",
+      "success": "Successfully loaded {var0} resource packs"
+    }
+  }
+}

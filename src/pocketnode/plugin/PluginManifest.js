@@ -25,7 +25,8 @@ class PluginManifest {
     setManifest(data){
         this.name = data.name.replace(/[^A-Za-z0-9 _.-]/g, "");
         if(this.name === ""){
-            throw new PluginException("Invalid PluginManifest name!");
+            throw new PluginException(
+                Server.translate.getString("pocketnode.plugin.manifest.invalidName"));
         }
         this.name = this.name.replace(" ", "_");
         this.version = data.version;

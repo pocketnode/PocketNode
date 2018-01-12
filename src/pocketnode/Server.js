@@ -1,5 +1,6 @@
 const MinecraftInfo = pocketnode("network/minecraft/Info");
 const Config = pocketnode("utils/Config");
+const Translate = pocketnode("utils/Translate");
 
 const PluginManager = pocketnode("plugin/PluginManager");
 const SourcePluginLoader = pocketnode("plugin/SourcePluginLoader");
@@ -10,9 +11,6 @@ const BatchPacket = pocketnode("network/minecraft/protocol/BatchPacket");
 
 const CommandMap = pocketnode("command/CommandMap");
 const ConsoleCommandReader = pocketnode("command/ConsoleCommandReader");
-const HelpCommand = pocketnode("command/defaults/HelpCommand");
-const StopCommand = pocketnode("command/defaults/StopCommand");
-const PluginsCommand = pocketnode("command/defaults/PluginsCommand");
 
 const Player = pocketnode("player/Player");
 const PlayerList = pocketnode("player/PlayerList");
@@ -21,8 +19,12 @@ const ResourcePackManager = pocketnode("resourcepacks/ResourcePackManager");
 
 const SFS = pocketnode("utils/SimpleFileSystem");
 
+const fs = require('fs');
+
 class Server {
     initVars(){
+        global.Server = this;
+
         this.PocketNode = {};
 
         this._bannedIps = {};
@@ -98,6 +100,9 @@ class Server {
         this._config = new Config(this.getDataPath() + "pocketnode.json", Config.JSON, {});
         this._debuggingLevel = this._config.getNested("debugging.level", 0);
 
+        this.translate = new Translate(this.getLang());
+        this.getLogger().info(this.translate.getString("server.language", [this.getLang()]));
+
         this.getLogger().setDebugging(this._debuggingLevel);
 
         //this._scheduler
@@ -111,14 +116,15 @@ class Server {
 
         if(!TRAVIS_BUILD) process.stdout.write("\x1b]0;" + this.getName() + " " + this.getPocketNodeVersion() + "\x07");
 
-        this.getLogger().debug("Server Id:", this._serverId);
+        this.getLogger().debug(this.translate.getString("server.id") + ":", this._serverId);
 
-        this.getLogger().info("Starting server on " + this.getIp() + ":" + this.getPort());
+        this.getLogger().info(this.translate.getString("server.starting") + " " + this.getIp() + ":" + this.getPort());
 
         this._raknetAdapter = new RakNetAdapter(this);
 
-        this.getLogger().info("This server is running " + this.getName() + " version " + this.getPocketNodeVersion() + " \"" + this.getCodeName() + "\" (API " + this.getApiVersion() + ")");
-        this.getLogger().info("PocketNode is distributed under the GPLv3 License.");
+        this.getLogger().info(
+            this.translate.getString("server.running", [this.getName(), this.getPocketNodeVersion(), this.getCodeName(), this.getApiVersion()]));
+        this.getLogger().info(this.translate.getString("server.license"));
 
         this._commandMap = new CommandMap(this);
         this.registerDefaultCommands();
@@ -146,15 +152,23 @@ class Server {
 
         this._tickCounter = 0;
 
-        this.getLogger().info("Done ("+(Date.now() - this.PocketNode.START_TIME)+"ms)!");
+        this.getLogger().info(this.translate.getString("server.done")
+            + " ("+(Date.now() - this.PocketNode.START_TIME)+"ms)!");
 
         this.tickProcessor();
     }
 
     registerDefaultCommands(){
-        this.getCommandMap().registerCommand(new HelpCommand());
-        this.getCommandMap().registerCommand(new StopCommand());
-        this.getCommandMap().registerCommand(new PluginsCommand());
+        let dir = __dirname + '/command/defaults';
+        const commands = fs.readdirSync(dir);
+        commands.forEach(defaultCommand => {
+            defaultCommand = require(dir + '/' + defaultCommand);
+            this.getCommandMap().registerCommand(new defaultCommand());
+        });
+    }
+
+    getTranslateString(node, vars = []) {
+        return this.translate.getString(node, vars);
     }
 
     /**
@@ -167,7 +181,7 @@ class Server {
     shutdown(){
         if(!this._running) return;
 
-        this.getLogger().info("Shutting down...");
+        this.getLogger().info(this.translate.getString("server.shutdown"));
         this._raknetAdapter.shutdown();
         this._pluginManager.disablePlugins();
 
@@ -304,6 +318,10 @@ class Server {
      */
     getMotd(){
         return this._config.getNested("server.motd", this.PocketNode.NAME + " Server");
+    }
+
+    getLang() {
+        return this._config.getNested("server.lang", "en");
     }
 
     /**

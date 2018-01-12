@@ -3,7 +3,7 @@ const TextFormat = pocketnode("utils/TextFormat");
 
 class PluginsCommand extends Command {
     constructor(){
-        super("plugins", "List the plugins you have enabled on your server.", "pocketnode.command.plugins", ["pl"]);
+        super("plugins", Server.translate.getString("command.plugins.desc"), "pocketnode.command.plugins", ["pl"]);
     }
 
     execute(sender, args){
@@ -14,7 +14,7 @@ class PluginsCommand extends Command {
             list += (plugin.isEnabled() ? TextFormat.GREEN : TextFormat.RED) + plugin.getFullName();
         });
 
-        sender.sendMessage("Plugin(s) (" + plugins.length + "): " + list);
+        sender.sendMessage(Server.translate.getString("command.plugins.text") + " (" + plugins.length + "): " + list);
     }
 }
 
