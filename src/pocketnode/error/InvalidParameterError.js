@@ -1,1 +1,1 @@
-module.exports = class InvalidParameterError extends Error {}
+module.exports = class InvalidParameterError extends Error {};

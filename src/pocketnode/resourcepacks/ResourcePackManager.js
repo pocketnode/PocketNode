@@ -32,7 +32,8 @@ class ResourcePackManager {
         this._config = new Config(path + "resource_packs.json", Config.JSON, {});
         this._forceResources = Boolean(this._config.get("force", false));
 
-        server.getLogger().info("Loading resource packs...");
+        server.getLogger().info(
+            Server.translate.getString("pocketnode.resourcePack.loading"));
 
         this._config.get("entries", []).forEach((pack, priority) => {
             try{
@@ -40,7 +41,8 @@ class ResourcePackManager {
                 if(SFS.fileExists(packPath)){
                     let newPack = null;
                     if(SFS.isDir(packPath)){
-                        server.getLogger().warning("Skipped resource entry "+pack+" due to directory resource packs currently unsupported")
+                        server.getLogger().warning(
+                            server.translate.getString("pocketnode.resourcePack.dirNotSupported", [pack]))
                     }else{
                         let newPack;
                         switch(SFS.getExtension(packPath)){
@@ -49,7 +51,8 @@ class ResourcePackManager {
                                 newPack = new ZippedResourcePack(packPath);
                                 break;
                             default:
-                                server.getLogger().warning("Skipped resource entry "+pack+" due to format not supported");
+                                server.getLogger().warning(
+                                    server.translate.getString("pocketnode.resourcePack.formatNotSupported", [pack]));
                                 break;
                         }
 
@@ -59,14 +62,16 @@ class ResourcePackManager {
                         }
                     }
                 }else{
-                    server.getLogger().warning("Skipped resource entry "+pack+" due to file or directory not found");
+                    server.getLogger().warning(
+                        server.translate.getString("pocketnode.resourcePack.fileOrDirNotFound", [pack]));
                 }
             }catch(e){
                 server.getLogger().logError(e);
             }
         });
 
-        server.getLogger().debug("Successfully loaded "+this._resourcePacks.length+" resource packs");
+        server.getLogger().debug(
+            server.translate.getString("pocketnode.resourcePack.success", [this._resourcePacks.length]));
     }
 
     resourcePacksRequired(){

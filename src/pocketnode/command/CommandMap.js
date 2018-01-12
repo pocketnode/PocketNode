@@ -31,7 +31,7 @@ class CommandMap {
                 });
             }
         }else{
-            throw new InvalidParameterError("The command: " + command + " is not an instance of Command!");
+            throw new InvalidParameterError(Server.translate.getString("commandInfo.invalidParameter", [command]));
         }
     }
 

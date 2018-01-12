@@ -51,7 +51,9 @@ class PluginManager {
                             return plugin;
                         }
                     }catch(e){
-                        this.server.getLogger().critical("Error trying to load " + manifest.getName());
+                        this.server.getLogger().critical(
+                            Server.translate.getString("pocketnode.plugin.errorLoad", [manifest.getName()])
+                        );
                         this.server.getLogger().logError(e);
                         return null;
                     }
@@ -89,26 +91,30 @@ class PluginManager {
                         if(manifest instanceof PluginManifest){
                             let name = manifest.getName();
                             if(name.indexOf("pocketnode") !== -1 || name.indexOf("minecraft") !== -1 || name.indexOf("mojang") !== -1){
-                                this.server.getLogger().error("Plugin name contains invalid keyword!");
+                                this.server.getLogger().error(Server.translate.getString("pocketnode.plugin.invalidName"));
                                 return;
                             }else if(name.indexOf(" ") !== -1){
-                                this.server.getLogger().warning("Warning for '" + name + "': It is discouraged to have a plugin with a space in the name!");
+                                this.server.getLogger().warning(
+                                    Server.translate.getString("pocketnode.plugin.spaceInName", [name]));
                             }
 
                             if(plugins.has(name) || this.getPlugin(name) instanceof Plugin){
-                                this.server.getLogger().error("There is already another plugin with the name '" + name + "'");
+                                this.server.getLogger().error(
+                                    Server.translate.getString("pocketnode.plugin.already", [name]));
                                 return;
                             }
 
                             if(!this.isCompatibleApi(manifest.getCompatibleApis())){
-                                this.server.getLogger().error("Cannot load '" + name + "': Incompatible Api!");
+                                this.server.getLogger().error(
+                                    Server.translate.getString("pocketnode.plugin.incompatibleApi", [name]));
                                 return;
                             }
 
                             plugins.set(name, file);
                         }
                     }catch(e){
-                        this.server.getLogger().error("There was an error loading a plugin.");
+                        this.server.getLogger().error(
+                            Server.translate.getString("pocketnode.plugin.errorLoading"));
                         this.server.getLogger().logError(e);
                     }
                 });
@@ -121,7 +127,8 @@ class PluginManager {
                     if((plugin = this.loadPlugin(file, loaders)) instanceof Plugin){
                         loadedPlugins.set(name, plugin);
                     }else{
-                        this.server.getLogger().critical("Unable to load plugin: " + name);
+                        this.server.getLogger().critical(
+                            Server.translate.getString("pocketnode.plugin.unableLoad", [name]));
                     }
                 }
             }

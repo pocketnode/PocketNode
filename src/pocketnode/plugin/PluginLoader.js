@@ -26,7 +26,7 @@ class PluginLoader {
 
         let missingMethods;
         if((missingMethods = ClassHasMethod(this.constructor, methods)) !== true){
-            throw new Error("Plugin is missing the following method(s): " + missingMethods.join(", "));
+            throw new Error(Server.translate.getString("pocketnode.plugin.missingMethod", [missingMethods.join(", ")]));
         }
     }
 }

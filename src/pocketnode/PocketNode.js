@@ -25,9 +25,8 @@ class PocketNode {
         global.TRAVIS_BUILD = process.argv.join(" ").indexOf("--travis-build") !== -1;
 
         let server = new Server(this, logger, paths);
-        if(TRAVIS_BUILD === true){
+        if(TRAVIS_BUILD === true)
             server.shutdown();
-        }
     }
 }
 

@@ -18,7 +18,8 @@ class ZippedResourcePack extends ResourcePack {
         this._path = zipPath;
 
         if(!SFS.fileExists(zipPath)){
-            throw new Error("Couldn't open "+zipPath+": file not found");
+            throw new Error(
+                Server.translate.getString("pocketnode.resourcePack.fileNotFound", [zipPath]));
         }
 
         let zip;
@@ -26,13 +27,15 @@ class ZippedResourcePack extends ResourcePack {
         try{
             zip = new AdmZip(zipPath);
         }catch(e){
-            throw new Error("Error opening resource pack: "+zipPath);
+            throw new Error(
+                Server.translate.getString("pocketnode.resourcePack.errorOpening", [zipPath]));
         }
 
         let manifest;
 
         if((manifest = zip.readFile("manifest.json")) === null){
-            throw new Error("Could not load resource pack from "+zipPath+": manifest.json not found in the archive root");
+            throw new Error(
+                Server.translate.getString("pocketnode.resourcePack.manifest.notFound", [zipPath]));
         }
 
         this._data = SFS.readFile(zipPath);
@@ -41,7 +44,8 @@ class ZippedResourcePack extends ResourcePack {
 
         manifest = JSON.parse(manifest.toString());
         if(!ZippedResourcePack.validManifest(manifest)){
-            throw new Error("Could not load resource pack from "+zipPath+": manifest.json is invalid or incomplete");
+            throw new Error(
+                Server.translate.getString("pocketnode.resourcePack.manifest.invalid", [zipPath]));
         }
 
         this._manifest = manifest;

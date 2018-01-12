@@ -1,0 +1,86 @@
+{
+  "command": {
+    "plugins": {
+      "desc": "List the plugins you have enabled on your server.",
+      "text": "Plugin(s)"
+    },
+    "help": {
+      "desc": "Show available commands for this server.",
+      "title": "Help",
+      "noHelp": "No help for"
+    },
+    "stop": {
+      "desc": "Stops the server."
+    }
+  },
+  "commandInfo": {
+    "desc": "Description",
+    "usage": "Usage",
+    "invalidParameter": "The command: {var0} is not an instance of Command!"
+  },
+  "server": {
+    "done": "Done",
+    "id": "Server Id",
+    "starting": "Starting server on",
+    "running": "This server is running {var0} version {var1} \"{var2}\" (API {var3})",
+    "license": "PocketNode is distributed under the GPLv3 License",
+    "loadConfig": "Loading server configuration...",
+    "shutdown": "Shutting down...",
+    "language": "Language: {var0}"
+  },
+
+  "pocketnode": {
+    "player": {
+      "logged": "Player logged in: {var0}",
+      "leave": "{var0} has left the game",
+      "kick": "Kicked by admin.",
+      "reason": "Reason:",
+      "unknownReason": "Unknown Reason.",
+      "invalidProtocol": "Incompatible Protocol",
+      "invalidUsername": "Invalid Username",
+      "invalidSkin": "Invalid Skin",
+      "invalidSession": "Invalid Session",
+      "authRequired": "This server requires authentication.",
+      "xboxNotLogged": "{var0} is NOT logged into to Xbox Live",
+      "xuidEmpty": "{var0} should have an XUID, but none found",
+      "loginAnotherLocation": "Logged in from another location",
+      "failedSaveData": "Failed to save player data for {var0}",
+      "viewDistance": "Setting view distance for {var0} to {var1}"
+    },
+    "packet": {
+      "attempt": "Attempted to send {var0} to {var1} before they got logged in."
+    },
+    "plugin": {
+      "manifest": {
+        "invalidName": "Invalid PluginManifest name"
+      },
+      "loading": "Loading plugin {var0}",
+      "enable": "Enabling {var0}",
+      "disable": "Disabling {var0}",
+      "couldntLoad": "Couldn't load plugin {var0}: main not found!",
+      "folderNotEx": "Data folder '{var0}' for plugin {var1} exists but is not a directory",
+      "missingMethod": "Plugin is missing the following method(s): {var0}",
+      "errorLoad": "Error trying to load {var0}",
+      "errorLoading": "There was an error loading a plugin.",
+      "unableLoad": "Unable to load plugin {var0}",
+      "invalidName": "Plugin name contains invalid keyword!",
+      "spaceInName": "Warning for '{var0}': It is discouraged to have a plugin with a space in the name!",
+      "already": "There is already another plugin with the name '{var0}'",
+      "incompatibleApi": "Cannot load '{var0}': Incompatible Api!"
+    },
+    "resourcePack": {
+      "manifest": {
+        "notFound": "Could not load resource pack from {var0}: manifest.json not found in the archive root",
+        "invalid": "Could not load resource pack from {var0}: manifest.json is invalid or incomplete"
+      },
+      "loading": "Loading resource packs...",
+      "missingMethod": "{var0} is missing the following method(s): {var1}",
+      "dirNotSupported": "Skipped resource entry {var0} due to directory resource packs currently unsupported",
+      "formatNotSupported": "Skipped resource entry {var0} due to format not supported",
+      "fileOrDirNotFound": "Skipped resource entry {var0} due to file or directory not found",
+      "fileNotFound": "Couldn't open {var0}: file not found",
+      "errorOpening": "Error opening resource pack {var0}",
+      "success": "Successfully loaded {var0} resource packs"
+    }
+  }
+}
