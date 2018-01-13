@@ -22,7 +22,7 @@ class RakNetAdapter {
             .setVersion(server.getVersion())
             .setOnlinePlayers(server.getOnlinePlayerCount())
             .setMaxPlayers(server.getMaxPlayers())
-            .setGamemode(server.getGamemodeName(server.getGamemode()));
+            .setGamemode(server.getGamemode() >= 1 ? "Creative" : "Survival"); //todo fix this later
         this.packetPool = new PacketPool();
         this.logger = server.getLogger();
         this.players = new PlayerList();
