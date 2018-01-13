@@ -3,18 +3,95 @@ const Path = require("path");
 /**
  * Require files from PocketNode
  * @param path {string}
- * @returns {*}
+ * @return {*}
  */
 global.pocketnode = function(path){
     return require(Path.normalize(__dirname + "/../../" + path));
 };
+
+const SFS = pocketnode("utils/SimpleFileSystem");
+
+void function(){
+    function walk(dir){
+        SFS.walkDir(dir).forEach(path => {
+            if(SFS.basename(SFS.dirname(path)) === "pocketnode" && SFS.isFile(path)) return; //omit Server, PocketNode
+
+            let parent;
+            if(SFS.isDir(path)){
+                parent = trace(path);
+            }else if(SFS.isFile(path)){
+                parent = trace(SFS.dirname(path));
+            }
+
+
+            if(SFS.isDir(path)){
+                walk(path);
+            }else if(SFS.isFile(path)){
+                parent.files[Path.basename(path, ".js")] = path;
+            }
+        });
+    }
+
+    function trace(path){
+        path = path.split(Path.sep);
+        path = path.slice(path.lastIndexOf("pocketnode")+1);
+
+        let parent = global.pocketnode;
+
+        path.forEach(part => {
+            if(part === "") return;
+
+            if(typeof parent[part] === "undefined"){
+                parent[part] = {
+                    files: {},
+                    use: function(file){
+                        if(typeof file === "string"){
+                            file = file.indexOf(".js") !== -1 ? file.slice(0, -3) : file;
+                            if(Object.keys(this.files).indexOf(file) !== -1){
+                                return require(this.files[file]);
+                            }else{
+                                throw new Error(`The requested resource, ${file}, was not found!`);
+                            }
+                        }else if(file instanceof Array){
+                            let files = [];
+
+                            file.forEach(f => {
+                                if(Object.keys(this.files).indexOf(f) !== -1){
+                                    files.push(require(this.files[f]));
+                                }else{
+                                    files.push(undefined);
+                                }
+                            });
+
+                            return files;
+                        }
+                    },
+                    all(){
+                        let all = {};
+                        for(let name in this.files){
+                            all[name] = require(this.files[name]);
+                        }
+                        return all;
+                    }
+                };
+            }
+
+            parent = parent[part];
+        });
+
+        return parent;
+    }
+
+    walk(__dirname + "/../../");
+}();
+
 
 /**
  * PHP-like rounding added onto the Math object
  * @param value     {number}
  * @param precision {number}
  * @param mode      {string}
- * @returns {Number}
+ * @return {Number}
  */
 global.Math.round_php = function(value, precision = 0, mode = "ROUND_HALF_UP"){
     let m, f, isHalf, sgn;
@@ -52,7 +129,7 @@ global.Math.round_php = function(value, precision = 0, mode = "ROUND_HALF_UP"){
  *          CheckTypes([String, 12]); // throws TypeError
  *
  * @throws {TypeError}
- * @returns {boolean}
+ * @return {boolean}
  */
 global.CheckTypes = function(...args){
     if(args.length === 0) throw new TypeError("Expecting at least 1 Array. Example: [Object, myObjectVar]");
@@ -95,6 +172,10 @@ String.prototype.rtrim = function(char){
         else break;
     }
     return str.split("").reverse().join("");
+};
+
+String.prototype.contains = function(str){
+    return this.indexOf(str) !== -1;
 };
 
 /**
