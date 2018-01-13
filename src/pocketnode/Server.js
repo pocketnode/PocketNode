@@ -68,6 +68,8 @@ class Server {
         this._playerList = new PlayerList();
 
         this._levels = new Map();
+
+        this._entityCount = 0;
     }
 
     constructor(PocketNode, logger, paths){

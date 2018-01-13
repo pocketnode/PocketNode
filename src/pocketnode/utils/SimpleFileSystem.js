@@ -1,5 +1,5 @@
 const fs = require("fs");
-const Path = require("path");
+const path = require("path");
 
 class SimpleFileSystem {
     static fileExists(f){
@@ -32,20 +32,20 @@ class SimpleFileSystem {
         return stats.isFile();
     }
 
-    static fixPath(p){
-        return Path.normalize(p);
+    static normalize(p){
+        return path.normalize(p);
     }
 
     static basename(p){
-        return Path.basename(p);
+        return path.basename(p);
     }
 
     static dirname(p){
-        return Path.dirname(p);
+        return path.dirname(p);
     }
 
     static getExtension(p){
-        return Path.extname(p).substr(1);
+        return path.extname(p).substr(1);
     }
 
     static getFileSize(p){
@@ -59,6 +59,11 @@ class SimpleFileSystem {
 
     static readFileAsStream(p){
         return fs.createReadStream(p);
+    }
+
+    static walkDir(d){
+        d = path.normalize(d + path.sep);
+        return fs.readdirSync(d).map(p => {return d + p;});
     }
 }
 

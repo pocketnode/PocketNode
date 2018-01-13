@@ -1,8 +1,8 @@
 {
   "name": "pocketnode",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Server software written in Javascript for Minecraft: PE",
-  "main": "start.js",
+  "main": "src/pocketnode/PocketNode.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "docs": "rm -rf ./docs && jsdoc ./ -r -c ./jsdoc.json -d docs"
@@ -19,6 +19,7 @@
   "dependencies": {
     "adm-zip": "^0.4.7",
     "raknet": "git+https://github.com/PocketNode/RakNet.git",
+    "pocketnode-language": "git+https://github.com/PocketNode/PocketNode-Language.git",
     "time-stamp": "^2.0.0"
   },
   "devDependencies": {

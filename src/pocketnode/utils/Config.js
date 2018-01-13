@@ -28,7 +28,7 @@ class Config {
         }else{
             if(this.type === Config.DETECT){
                 switch(Path.extname(this.file)){
-                    case "js":
+                    case ".json":
                         this.type = Config.JSON;
                         break;
                 }

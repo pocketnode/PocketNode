@@ -145,3 +145,5 @@ class Position extends Vector3
     }
 
 }
+
+module.exports = Position;

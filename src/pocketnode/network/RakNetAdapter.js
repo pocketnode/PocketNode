@@ -1,4 +1,5 @@
-const RakNetServer = (process.argv.length === 3 && process.argv[2] === "LOCAL" ? require("../../../../RakNet") : require("raknet"));
+const RakNetServer = ((process.argv.indexOf("--local") !== -1 || process.argv.indexOf("-l") !== -1) ? require("../../../../RakNet") : require("raknet"));
+
 const Logger = pocketnode("logger/Logger");
 
 const PacketPool = pocketnode("network/minecraft/protocol/PacketPool");
@@ -21,7 +22,7 @@ class RakNetAdapter {
             .setVersion(server.getVersion())
             .setOnlinePlayers(server.getOnlinePlayerCount())
             .setMaxPlayers(server.getMaxPlayers())
-            .setGamemode("Creative");
+            .setGamemode(server.getGamemodeName(server.getGamemode()));
         this.packetPool = new PacketPool();
         this.logger = server.getLogger();
         this.players = new PlayerList();

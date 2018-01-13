@@ -16,15 +16,7 @@ const Position = pocketnode("level/Position");
 * A Location is a Position with added Yaw and Pitch references. Yaw and Pitch are used for rotation.
 * @class
 */
-class Location extends Position
-{
-
-    initVars()
-    {
-        this.yaw;
-        this.pitch;
-    }
-
+class Location extends Position {
     /**
      * Represents a Position with added Yaw and Pitch references
      * @constructor
@@ -35,11 +27,10 @@ class Location extends Position
 	 * @param {Number}   pitch
 	 * @param {Level}    level
 	 */
-	constructor(x = 0, y = 0, z = 0, yaw = 0.0, pitch = 0.0, level = null)
-    {
+	constructor(x = 0, y = 0, z = 0, yaw = 0.0, pitch = 0.0, level = null){
+        super(x, y, z, level);
 		this.yaw = yaw;
 		this.pitch = pitch;
-		super(x, y, z, level);
 	}
 
     /**

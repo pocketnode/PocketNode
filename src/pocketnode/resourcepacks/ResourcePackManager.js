@@ -36,7 +36,7 @@ class ResourcePackManager {
 
         this._config.get("entries", []).forEach((pack, priority) => {
             try{
-                let packPath = SFS.fixPath(path + "/" + pack);
+                let packPath = SFS.normalize(path + "/" + pack);
                 if(SFS.fileExists(packPath)){
                     let newPack = null;
                     if(SFS.isDir(packPath)){
