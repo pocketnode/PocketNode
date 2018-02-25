@@ -93,7 +93,7 @@ void function(){
  * @param mode      {string}
  * @return {Number}
  */
-global.Math.round_php = function(value, precision = 0, mode = "ROUND_HALF_UP"){
+Math.round_php = function(value, precision = 0, mode = "ROUND_HALF_UP"){
     let m, f, isHalf, sgn;
     m = Math.pow(10, precision);
     value *= m;
@@ -191,4 +191,42 @@ String.prototype.wordwrap = function(m, b, c){
             j = c == 2 || (j = s.slice(0, m + 1).match(/\S*(\s)?$/))[1] ? m : j.input.length - j[0].length
                 || c == 1 && m || j.input.length + (j = s.slice(m).match(/^\S*/)).input.length;
     return r.join("\n");
+};
+
+global.assert = require("assert");
+
+global.sleep = function(ms){
+    return sleep_until(Date.now() + ms);
+};
+
+global.sleep_until = function(ms){
+    while(Date.now() < ms){}
+    return true;
+};
+
+/**
+ * A more accurate interval
+ * @param fn       {Function}
+ * @param interval {Number}
+ */
+global.createInterval = function(fn, interval){
+    return new (function(){
+        this.baseline = undefined;
+        this.run = function(){
+            if(this.baseline === undefined){
+                this.baseline = Date.now();
+            }
+
+            fn();
+
+            let end = Date.now();
+            this.baseline += interval;
+
+            let nextTick = interval - (end - this.baseline);
+            if (nextTick < 0) nextTick = 0;
+            this.timer = setTimeout(() => this.run(end), nextTick);
+        };
+
+        this.stop = () => clearTimeout(this.timer);
+    });
 };
