@@ -468,14 +468,25 @@ class BinaryStream {
 
     writeUnsignedVarInt(v){
         let stream = new BinaryStream();
-        while (v !== 0){
+
+        for(let i = 0; i < 5; i++){
+            if((v >> 7) !== 0){
+                stream.writeByte(v | 0x80);
+            }else{
+                stream.writeByte(v & 0x7f);
+                break;
+            }
+            v >>= 7;
+        }
+
+        /*while (v !== 0){
             let tmp = v & 0x7f;
             v >>>= 7;
             if(v !== 0){
                 tmp |= 0x80;
             }
             stream.writeByte(tmp);
-        }
+        }*/
         this.append(stream.buffer);
 
         return this;
