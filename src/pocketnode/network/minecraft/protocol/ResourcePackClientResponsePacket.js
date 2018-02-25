@@ -42,13 +42,10 @@ class ResourcePackClientResponsePacket extends DataPacket {
     }
 
     _encodePayload(){
-        this.writeByte(this.status)
-            .writeLShort(this.packIds.length);
+        this.writeByte(this.status);
+        this.writeLShort(this.packIds.length);
         this.packIds.forEach(id => {
-            this.writeShort(id.length);
-            let buf = Buffer.alloc(id.length);
-            buf.write(id);
-            this.append(buf);
+            this.writeString(id);
         });
     }
 

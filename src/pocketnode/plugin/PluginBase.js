@@ -2,7 +2,6 @@ const FileSystem = require("fs");
 
 const Plugin = pocketnode("plugin/Plugin");
 const PluginLogger = pocketnode("plugin/PluginLogger");
-const TextFormat = pocketnode("utils/TextFormat");
 const Config = pocketnode("utils/Config");
 
 class PluginBase extends Plugin {

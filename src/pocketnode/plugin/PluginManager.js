@@ -142,8 +142,8 @@ class PluginManager {
 
             if(pluginApi[1].toUpperCase() !== serverApi[1].toUpperCase()){}
 
-            let pluginNumbers = pluginApi[0].split(".").concat(["0", "0"]).map(v=>{return parseInt(v)});
-            let serverNumbers = serverApi[0].split(".").map(v=>{return parseInt(v)});
+            let pluginNumbers = pluginApi[0].split(".").concat(["0", "0"]).map(v => parseInt(v));
+            let serverNumbers = serverApi[0].split(".").map(v => parseInt(v));
 
             if(pluginNumbers[0] !== serverNumbers[0]) continue;
 

@@ -72,7 +72,7 @@ class ZippedResourcePack extends ResourcePack {
     }
 
     getPackChunk(start, end){
-        return this._data.slice(start, start+end);
+        return this._data.slice(start, start + end);
     }
 
     static validManifest(manifest){
