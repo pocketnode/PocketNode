@@ -37,25 +37,20 @@ class RakNetAdapter {
             let identifier = this.players.getPlayerIdentifier(player);
 
             if(packet instanceof BatchPacket){
-                this.raknet.getSessionManager().getSessionByIdentifier(identifier).queueConnectedPacket(packet, (needACK === true ? RakNet.FLAG_NEED_ACK : 0) | (immediate === true ? RakNet.PRIORITY_IMMEDIATE : RakNet.PRIORITY_NORMAL));
+                let session;
+                if((session = this.raknet.getSessionManager().getSessionByIdentifier(identifier))){
+                    session.queueConnectedPacket(packet, (needACK === true ? RakNet.FLAG_NEED_ACK : 0) | (immediate === true ? RakNet.PRIORITY_IMMEDIATE : RakNet.PRIORITY_NORMAL));
+                }
                 return null;
             }else{
                 this.server.batchPackets([player], [packet], true, immediate);
-                this.logger.debugExtensive("Sending "+packet.getName()+":", packet.buffer);
+                //this.logger.debugExtensive("Sending "+packet.getName()+":", packet.buffer);
             }
         }
     }
 
     tick(){
-        this.raknet.getSessionManager().readOutgoingMessages().forEach(message => {
-            switch(message.purpose){
-                case "openSession":
-                    let player = new Player(this.server, message.data.clientId, message.data.ip, message.data.port);
-                    this.players.addPlayer(message.data.identifier, player);
-                    this.server.getPlayerList().addPlayer(message.data.identifier, player);
-                    break;
-            }
-        });
+        this.raknet.getSessionManager().readOutgoingMessages().forEach(message => this._handleIncomingMessage(message.purpose, message.data));
 
         this.raknet.getSessionManager().getSessions().forEach(session => {
             let player = this.players.getPlayer(session.toString());
@@ -78,6 +73,23 @@ class RakNetAdapter {
 
     shutdown(){
         this.raknet.shutdown();
+    }
+
+    _handleIncomingMessage(purpose, data){
+        switch(purpose){
+            case "openSession":
+                let player = new Player(this.server, data.clientId, data.ip, data.port);
+                this.players.addPlayer(data.identifier, player);
+                this.server.getPlayerList().addPlayer(data.identifier, player);
+                break;
+
+            case "closeSession":
+                if(this.players.has(data.identifier)){
+                    let player = this.players.get(data.identifier);
+                    player.close(player.getLeaveMessage(), data.reason);
+                }
+                break;//
+        }
     }
 }
 

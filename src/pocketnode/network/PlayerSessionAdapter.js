@@ -7,6 +7,9 @@ const ResourcePackStackPacket = pocketnode("network/minecraft/protocol/ResourceP
 const ResourcePackChunkRequestPacket = pocketnode("network/minecraft/protocol/ResourcePackChunkRequestPacket");
 const ResourcePackChunkDataPacket = pocketnode("network/minecraft/protocol/ResourcePackChunkDataPacket");
 const RequestChunkRadiusPacket = pocketnode("network/minecraft/protocol/RequestChunkRadiusPacket");
+const PlayStatusPacket = pocketnode("network/minecraft/protocol/PlayStatusPacket");
+
+const Chunk = pocketnode("level/chunk/Chunk");
 
 const TextPacket = pocketnode("network/minecraft/protocol/TextPacket");
 
@@ -54,11 +57,12 @@ class PlayerSessionAdapter {
         this.server.getLogger().debugExtensive("Status:", ResourcePackClientResponsePacket.STATUS(packet.status));
         switch(packet.status){
             case ResourcePackClientResponsePacket.STATUS_REFUSED:
-                this.close("", "You must accept resource packs to join this server.", true);
+                this.player.close("", "You must accept resource packs to join this server.", true);
                 break;
 
             case ResourcePackClientResponsePacket.STATUS_SEND_PACKS:
                 manager = this.server.getResourcePackManager();
+                packet.packIds.shift();//todo figure out why the first id is 00000000-0000-0000-0000-000000000000
                 for(let i in packet.packIds){
                     let uuid = packet.packIds[i];
                     let pack = manager.getPackById(uuid);
@@ -118,6 +122,36 @@ class PlayerSessionAdapter {
 
     handleRequestChunkRadius(packet){
         this.player.setViewDistance(packet.radius);
+
+        let distance = this.player.getViewDistance();
+        for(let chunkX = -distance; chunkX <= distance; chunkX++){
+            for(let chunkZ = -distance; chunkZ <= distance; chunkZ++){
+                let chunk = new Chunk(chunkX, chunkZ);
+
+                for(let z = 0; z < 16; ++z){
+                    for(let x = 0; x < 16; ++x){
+                        let y = 0;
+                        //chunk.setBlockId(x, y++, z, 7);
+                        //chunk.setBlockId(x, y++, z, 3);
+                        //chunk.setBlockId(x, y++, z, 3);
+                        chunk.setBlockId(x, y++, z, 2);
+
+                        chunk.setHeight(y);
+
+                        for(let i = y - 1; i >= 0; i--){
+                            chunk.setBlockSkyLight(x, y, z, 0);
+                        }
+                    }
+                }
+
+                chunk.recalculateHeightMap();
+
+                this.player.sendChunk(chunk);
+            }
+        }
+
+        this.player.sendPlayStatus(PlayStatusPacket.PLAYER_SPAWN);
+
         return true;
     }
 
