@@ -12,10 +12,6 @@
 
 const Position = pocketnode("level/Position");
 
-/**
-* A Location is a Position with added Yaw and Pitch references. Yaw and Pitch are used for rotation.
-* @class
-*/
 class Location extends Position {
     /**
      * Represents a Position with added Yaw and Pitch references
@@ -27,6 +23,15 @@ class Location extends Position {
 	 * @param {Number}   pitch
 	 * @param {Level}    level
 	 */
+
+    /**
+     * @param x     {Number}
+     * @param y     {Number}
+     * @param z     {Number}
+     * @param yaw   {Number}
+     * @param pitch {Number}
+     * @param level {Level}
+     */
 	constructor(x = 0, y = 0, z = 0, yaw = 0.0, pitch = 0.0, level = null){
         super(x, y, z, level);
 		this.yaw = yaw;
@@ -34,15 +39,14 @@ class Location extends Position {
 	}
 
     /**
-    * @param {Vector3}      pos
-    * @param {Level | null} level
-    * @param {Number}       yaw
-    * @param {Number}       pitch
-    *
-    * @return {Location}
-    */
-    fromObject(pos, level = null, yaw = 0.0, pitch = 0.0)
-    {
+     * @param pos   {Vector3}
+     * @param level {Level|null}
+     * @param yaw   {Number}
+     * @param pitch {Number}
+     *
+     * @return {Location}
+     */
+    static fromObject(pos, level = null, yaw = 0.0, pitch = 0.0){
         return new Location(pos.x, pos.y, pos.z, yaw, pitch, (level === null ? (pos instanceof Position ? pos.level : null) : level));
     }
 
@@ -51,30 +55,25 @@ class Location extends Position {
     *
     * @return {Location}
     */
-    asLocation()
-    {
+    asLocation(){
         return new Location(this.x, this.y, this.z, this.yaw, this.pitch, this.level);
     }
 
-    getYaw()
-    {
+    getYaw(){
         return this.yaw;
     }
 
-    getPitch()
-    {
+    getPitch(){
         return this.pitch;
     }
 
-    __toString()
-    {
+    toString(){
         return "Location (level=" + (this.isValid() ? this.getLevel().getName() : "null") + ", x=" + this.x + ", y=" + this.y + ", z=" + this.z + ", yaw=" + this.yaw + ", pitch=" + this.pitch + ")";
     }
     
-    equals(v)
-    {
+    equals(v){
         if(v instanceof Location){
-            return super.equals(v) && v.yaw == this.yaw && v.pitch == this.pitch;
+            return super.equals(v) && v.yaw === this.yaw && v.pitch === this.pitch;
         }
         return super.equals(v);
     }

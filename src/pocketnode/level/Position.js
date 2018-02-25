@@ -12,37 +12,22 @@
 
 const Vector3 = pocketnode("math/Vector3");
 
-/**
-* A Position is a Vector3 with an added Level component
-* @class
-*/
-class Position extends Vector3
-{
-
-    initVars()
-    {
-        this.level = null;
-    }
+class Position extends Vector3 {
 
     /**
      * Represents a Vector3 with an added Level reference.
-     * @constructor
 	 * @param {Number}   x
 	 * @param {Number}   y
 	 * @param {Number}   z
-	 * @param {Level}    level
+	 * @param {Level|null}    level
      *
 	 */
-    constructor(x = 0, y = 0, z = 0, level = null)
-    {
-        this.x = x;
-        this.y = y;
-        this.z = z;
+    constructor(x = 0, y = 0, z = 0, level = null){
+        super(x, y, z);
         this.level = level;
     }
 
-    fromObject(pos, level = null)
-    {
+    static fromObject(pos, level = null){
         return new Position(pos.x, pos.y, pos.z, level);
     }
 
@@ -51,39 +36,30 @@ class Position extends Vector3
     *
     * @return {Position}
     */
-    asPosition()
-    {
+    asPosition(){
         return new Position(this.x, this.y, this.z, this.level);
     }
 
     /**
-    * Returns the target Level, or null if the target is not valid.
-    * If a reference exists to a Level which is closed, the reference will be destroyed and null will be returned.
-    *
-    * @return {Level | null}
-    */
-    getLevel()
-    {
+     * @return {Level|null}
+     */
+    getLevel(){
         if(this.level !== null && this.level.isClosed()){
-            //MainLogger.getLogger().debug("Position was holding a reference to an unloaded Level");
+            MainLogger.getLogger().debug("Position was holding a reference to an unloaded Level");
             this.level = null;
         }
+
         return this.level;
     }
 
     /**
-    * Sets the target Level of the position.
-    *
-    * @param {Level | null} level
-    *
-    * @return {this}
-    *
-    * @throws \InvalidArgumentException if the specified Level has been closed
-    */
-    setLevel(level = null)
-    {
+     * Sets the target Level of the position.
+     * @param level {Level|null}
+     * @return {Position}
+     */
+    setLevel(level = null){
         if(level !== null && level.isClosed()){
-            //throw new \InvalidArgumentException("Specified level has been unloaded and cannot be used");
+            throw new Error("Specified level has been unloaded and cannot be used");
         }
         this.level = level;
         return this;
@@ -94,8 +70,7 @@ class Position extends Vector3
     *
     * @return {Boolean}
     */
-    isValid()
-    {
+    isValid(){
         return this.getLevel() instanceof Level;
     }
 
@@ -109,15 +84,13 @@ class Position extends Vector3
     *
     * @throws {LevelException}
     */
-    getSide(side, step = 1)
-    {
-        var assert = require('assert');
+    getSide(side, step = 1){
         assert(this.isValid());
-        return this.fromObject(super.getSide(side, step), this.level);
+
+        return Position.fromObject(super.getSide(side, step), this.level);
     }
 
-    __toString()
-    {
+    toString(){
         return "Position(level=" + (this.isValid() ? this.getLevel().getName() : "null") + ",x=" + this.x + ",y=" + this.y + ",z=" + this.z + ")";
     }
 
@@ -128,16 +101,14 @@ class Position extends Vector3
     *
     * @return {Position}
     */
-    setComponents(x, y, z)
-    {
+    setComponents(x, y, z){
         this.x = x;
         this.y = y;
         this.z = z;
         return this;
     }
 
-    equals(v)
-    {
+    equals(v){
         if(v instanceof Position){
             return super.equals(v) && v.getLevel() === this.getLevel();
         }

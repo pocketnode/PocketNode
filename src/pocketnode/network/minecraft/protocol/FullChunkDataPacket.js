@@ -8,7 +8,7 @@ class FullChunkDataPacket extends DataPacket {
 
     initVars(){
         this.chunkX = 0;
-        this.chunkY = 0;
+        this.chunkZ = 0;
         this.data = null;
     }
 
@@ -19,14 +19,15 @@ class FullChunkDataPacket extends DataPacket {
 
     _decodePayload(){
         this.chunkX = this.readVarInt();
-        this.chunkY = this.readVarInt();
-        this.data = this.readString();
+        this.chunkZ = this.readVarInt();
+        this.data = this.readString(true);
     }
 
     _encodePayload(){
         this.writeVarInt(this.chunkX)
-            .writeVarInt(this.chunkY)
-            .writeString(this.data);
+            .writeVarInt(this.chunkZ)
+            .writeUnsignedVarInt(this.data.length)
+            .append(this.data);
     }
 }
 

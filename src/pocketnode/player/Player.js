@@ -11,6 +11,7 @@ const ResourcePacksInfoPacket = pocketnode("network/minecraft/protocol/ResourceP
 const StartGamePacket = pocketnode("network/minecraft/protocol/StartGamePacket");
 const ChunkRadiusUpdatedPacket = pocketnode("network/minecraft/protocol/ChunkRadiusUpdatedPacket");
 const TextPacket = pocketnode("network/minecraft/protocol/TextPacket");
+const FullChunkDataPacket =  pocketnode("network/minecraft/protocol/FullChunkDataPacket");
 
 const Vector3 = pocketnode("math/Vector3");
 
@@ -360,7 +361,7 @@ class Player extends CommandSender {
         if(!this.isConnected()) return false;
         CheckTypes([DataPacket, packet], [Boolean, needACK], [Boolean, immediate]);
 
-        if(packet.getName().toLowerCase() !== "batchpacket") this.server.getLogger().debug("Sending "+packet.getName()+" to "+(this.getName()!==""?this.getName():this._ip+":"+this._port));
+        //if(packet.getName().toLowerCase() !== "batchpacket") this.server.getLogger().debug("Sending "+packet.getName()+" to "+(this.getName()!==""?this.getName():this._ip+":"+this._port));
 
         if(!this.loggedIn && !packet.canBeSentBeforeLogin()){
             throw new Error("Attempted to send "+packet.getName()+" to "+this.getName()+" before they got logged in.");
@@ -455,6 +456,10 @@ class Player extends CommandSender {
         this.server.getLogger().debug("Setting view distance for " + this.getName() + " to " + distance);
     }
 
+    getViewDistance(){
+        return this._viewDistance;
+    }
+
     completeLoginSequence(){
         //create entity
         this.server.getLogger().info([
@@ -482,14 +487,14 @@ class Player extends CommandSender {
         pk.levelName = this.server.getMotd();
         pk.currentTick = this.server.getCurrentTick();
         pk.enchantmentSeed = 123456;
-        pk.time = 2100;
+        pk.time = 0;
         pk.hasAchievementsDisabled = true;
         this.dataPacket(pk);
 
         this.server.addOnlinePlayer(this);
         this.server.onPlayerCompleteLoginSequence(this);
 
-        this.sendPlayStatus(PlayStatusPacket.PLAYER_SPAWN);
+        //this.sendPlayStatus(PlayStatusPacket.PLAYER_SPAWN);
     }
 
     chat(message){
@@ -526,6 +531,14 @@ class Player extends CommandSender {
         let pk = new TextPacket();
         pk.type = TextPacket.TYPE_RAW;
         pk.message = message;
+        this.dataPacket(pk);
+    }
+
+    sendChunk(chunk){
+        let pk = new FullChunkDataPacket();
+        pk.chunkX = chunk.getX();
+        pk.chunkZ = chunk.getZ();
+        pk.data = chunk.toBinary();
         this.dataPacket(pk);
     }
 
