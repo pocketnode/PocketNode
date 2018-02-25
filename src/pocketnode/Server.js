@@ -151,6 +151,7 @@ class Server {
         this.getLogger().info("Done ("+(Date.now() - this.PocketNode.START_TIME)+"ms)!");
 
         this.tickProcessor();
+        //this.forceShutdown();
     }
 
     registerDefaultCommands(){
@@ -486,14 +487,15 @@ class Server {
     }
 
     tickProcessor(){
-        let int = setInterval(() => {
+        let int = createInterval(() => {
             if(this.isRunning()){
                 this.tick();
             }else{
                 //this.forceShutdown();
-                clearInterval(int);
+                int.stop();
             }
         }, 1000 / 20);
+        int.run();
     }
 
     getRakNetAdapter(){
@@ -513,8 +515,8 @@ class Server {
         }
 
         let now = Date.now();
-        this._currentTPS = Math.min(20, 1 / Math.max(0.001, now - time));
-        this._currentUse = Math.min(1, (now - time) / 0.05);
+        this._currentTPS = Math.min(20, 1000 / Math.max(1, now - time));
+        this._currentUse = Math.min(1, (now - time) / 50);
 
         this._tickAverage.shift();
         this._tickAverage.push(this._currentTPS);
