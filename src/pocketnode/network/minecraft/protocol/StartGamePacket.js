@@ -42,6 +42,7 @@ class StartGamePacket extends DataPacket {
         this.hasTrustPlayersEnabled = false;
         this.defaultPlayerPermission = 2;//PlayerPermissions::MEMBER; //TODO
         this.xboxLiveBroadcastMode = 0; //TODO: find values
+        this.serverChunkTickRadius = 4;
 
         this.levelId = ""; //base64 string, usually the same as world folder name in vanilla
 
@@ -91,6 +92,7 @@ class StartGamePacket extends DataPacket {
         this.hasTrustPlayersEnabled = this.readBool();
         this.defaultPlayerPermission = this.readVarInt();
         this.xboxLiveBroadcastMode = this.readVarInt();
+        this.serverChunkTickRadius = this.readLInt();
 
         this.levelId = this.readString();
         this.levelName = this.readString();
@@ -132,7 +134,8 @@ class StartGamePacket extends DataPacket {
             .writeBool(this.hasStartWithMapEnabled)
             .writeBool(this.hasTrustPlayersEnabled)
             .writeVarInt(this.defaultPlayerPermission)
-            .writeVarInt(this.xboxLiveBroadcastMode);
+            .writeVarInt(this.xboxLiveBroadcastMode)
+            .writeLInt(this.serverChunkTickRadius);
 
         this.writeString(this.levelId)
             .writeString(this.levelName)
