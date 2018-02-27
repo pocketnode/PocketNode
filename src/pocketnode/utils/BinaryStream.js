@@ -499,7 +499,7 @@ class BinaryStream {
     }
 
     writeVarInt(v){
-        v = (v << 32 >> 32);
+        v <<= 32 >> 32;
         return this.writeUnsignedVarInt((v << 1) ^ (v >> 31));
     }
 
