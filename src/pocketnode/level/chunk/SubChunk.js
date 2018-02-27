@@ -39,11 +39,11 @@ class SubChunk extends SubChunkInterface {
     }
 
     getBlockId(x, y, z){
-        return this._blockIds[SubChunk.getIndex(x, y, z)];
+        return this._blockIds[SubChunk.getIdIndex(x, y, z)];
     }
 
     setBlockId(x, y, z, id){
-        this._blockIds[SubChunk.getIndex(x, y, z)] = id;
+        this._blockIds[SubChunk.getIdIndex(x, y, z)] = id;
         return true;
     }
 
@@ -95,10 +95,10 @@ class SubChunk extends SubChunkInterface {
         }
     }
 
-    setBlockSkyLight(x, y, z){
+    setBlockSkyLight(x, y, z, level){
         let i = SubChunk.getLightIndex(x, y, z);
         let byte = this._skyLight[i];
-        if((y & 1) === 0){
+        if((y & 0x01) === 0){
             this._skyLight[i] = (byte & 0xf0) | (level & 0x0f);
         }else{
             this._skyLight[i] = ((level & 0x0f) << 4) | (byte & 0x0f);
@@ -107,15 +107,13 @@ class SubChunk extends SubChunkInterface {
     }
 
     getHighestBlockId(x, z){
-        let low = (x << 8) | (z << 4);
-        let i = low | 0x0f;
-        for(; i >= low; --i){
-            if(this._blockIds[i] !== 0x00){
-                return i & 0x0f;
+        for(let y = 15; y >= 0; y--){
+            let id = this.getBlockId(x, y, z);
+            if(id !== 0){
+                return id;
             }
         }
-
-        return -1;
+        return 0;
     }
 
     getHighestBlockData(x, z){
@@ -124,7 +122,7 @@ class SubChunk extends SubChunkInterface {
 
     getHighestBlock(x, z){
         for(let y = 15; y >= 0; y--){
-            if(this.getBlockData(x, y, z) !== 0){
+            if(this.getBlockId(x, y, z) !== 0){
                 return y;
             }
         }
@@ -133,12 +131,10 @@ class SubChunk extends SubChunkInterface {
     }
 
     toBinary(){
-        let a = Buffer.from(this._blockIds);
-        let b = Buffer.from(this._blockData);
-        return Buffer.concat([a, b]);
+        return Buffer.from([0x00, ...this._blockIds, ...this._blockData]);
     }
 
-    static getIndex(x, y, z){
+    static getIdIndex(x, y, z){
         return (x << 8) | (z << 4) | y;
     }
 
@@ -150,5 +146,7 @@ class SubChunk extends SubChunkInterface {
         return SubChunk.getDataIndex(x, y, z);
     }
 }
+
+let subchunk = new SubChunk();
 
 module.exports = SubChunk;
