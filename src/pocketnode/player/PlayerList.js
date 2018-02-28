@@ -1,6 +1,7 @@
 const Player = pocketnode("player/Player");
 
 class PlayerList extends Map {
+
     addPlayer(id, player){
         CheckTypes([Player, player]);
         this.set(id, player);

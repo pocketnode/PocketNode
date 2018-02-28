@@ -13,6 +13,10 @@ const ConsoleCommandReader = pocketnode("command/ConsoleCommandReader");
 const HelpCommand = pocketnode("command/defaults/HelpCommand");
 const StopCommand = pocketnode("command/defaults/StopCommand");
 const PluginsCommand = pocketnode("command/defaults/PluginsCommand");
+const SayCommand = pocketnode("command/defaults/SayCommand");
+
+const EventHandler = pocketnode("event/EventHandler");
+const TestEvent = pocketnode("event/TestEvent");
 
 const Player = pocketnode("player/Player");
 const PlayerList = pocketnode("player/PlayerList");
@@ -29,12 +33,12 @@ class Server {
         this._bannedNames = {};
         this._ops = {};
         this._whitelist = {};
-        
+
         this._running = true;
         this._stopped = false;
 
         this._pluginManager = {};
-        
+
         this._scheduler = {}; //todo
 
         this._tickCounter = 0;
@@ -51,21 +55,22 @@ class Server {
         this._commandMap = {};
 
         this._resourcePackManager = {};
-        
+
         this._onlineMode = false;
 
         this._raknetAdapter = {};
-        
+
         this._serverId = Math.floor((Math.random() * 99999999)+1);
 
         this._paths = {};
         this._config = {};
 
         this._maxPlayers = -1;
-        
+
         this._players = new PlayerList();
         this._loggedInPlayers = new PlayerList();
         this._playerList = new PlayerList();
+        this._eventSystem = new EventHandler(this);
 
         this._levels = new Map();
 
@@ -143,7 +148,6 @@ class Server {
     }
 
     start(){
-
         //block banned ips
 
         this._tickCounter = 0;
@@ -158,6 +162,7 @@ class Server {
         this.getCommandMap().registerCommand(new HelpCommand());
         this.getCommandMap().registerCommand(new StopCommand());
         this.getCommandMap().registerCommand(new PluginsCommand());
+        this.getCommandMap().registerCommand(new SayCommand());
     }
 
     /**
@@ -352,6 +357,7 @@ class Server {
     }
 
     broadcastMessage(message, recipients = this.getOnlinePlayers()){
+        this.getLogger().info(message);
         recipients.forEach(recipient => recipient.sendMessage(message));
 
         return recipients.length;
@@ -605,6 +611,10 @@ class Server {
 
     onPlayerCompleteLoginSequence(player){
 
+    }
+
+    getEventSystem(){
+        return this._eventSystem;
     }
 }
 
