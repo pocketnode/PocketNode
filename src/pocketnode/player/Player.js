@@ -473,7 +473,7 @@ class Player extends CommandSender {
         pk.seed = 0xdeadbeef;
         pk.generator = 2;
         pk.levelGamemode = 1;
-        [pk.spawnX, pk.spawnY, pk.spawnZ] = [0, 10, 0];
+        [pk.spawnX, pk.spawnY, pk.spawnZ] = [0, 5, 0];
         pk.isMultiplayerGame = true;
         pk.hasXboxLiveBroadcast = false;
         pk.hasLANBroadcast = true;

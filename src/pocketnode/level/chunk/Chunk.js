@@ -1,4 +1,4 @@
-const BinaryStream = pocketnode("utils/BinaryStream");
+const BinaryStream = pocketnode("network/minecraft/NetworkBinaryStream");
 const SubChunk = pocketnode("level/chunk/SubChunk");
 const EmptySubChunk = pocketnode("level/chunk/EmptySubChunk");
 
@@ -232,8 +232,17 @@ class Chunk {
     }
 
     getFilledSubChunks(){
-        this.pruneEmptySubChunks();
-        return this._subChunks.size;
+        //this.pruneEmptySubChunks();
+        //return this._subChunks.size;
+        let y;
+        for(y = this._subChunks.size - 1; y >= 0; --y){
+            if(this._subChunks.get(y) instanceof EmptySubChunk){
+                continue;
+            }
+            break;
+        }
+
+        return y + 1;
     }
 
     pruneEmptySubChunks(){

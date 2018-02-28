@@ -15,8 +15,6 @@ const TextPacket = pocketnode("network/minecraft/protocol/TextPacket");
 
 const ResourcePack = pocketnode("resourcepacks/ResourcePack");
 
-const BinaryStream = pocketnode("utils/BinaryStream");
-
 const Async = pocketnode("utils/Async");
 
 class PlayerSessionAdapter {
@@ -126,7 +124,6 @@ class PlayerSessionAdapter {
         this.player.setViewDistance(packet.radius);
 
         let distance = this.player.getViewDistance();
-        let ccount = 1;
         for(let chunkX = -distance; chunkX <= distance; chunkX++) {
             for(let chunkZ = -distance; chunkZ <= distance; chunkZ++) {
                 let chunk = new Chunk(chunkX, chunkZ);
@@ -145,11 +142,10 @@ class PlayerSessionAdapter {
                     }
                 }
 
-                chunk.recalculateHeightMap();
+                //chunk.recalculateHeightMap();
                 //if(chunkX === -distance && chunkZ === -distance) console.log(`${chunk.toBinary().length}`);// > ${chunk.toBinary().toString("hex")}`);
 
                 this.player.sendChunk(chunk);
-                console.log(`sent chunk #${ccount++}`);
             }
         }
 

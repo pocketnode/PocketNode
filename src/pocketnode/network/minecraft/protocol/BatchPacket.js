@@ -1,5 +1,5 @@
 const DataPacket = pocketnode("network/minecraft/protocol/DataPacket");
-const BinaryStream = pocketnode("utils/BinaryStream");
+const BinaryStream = pocketnode("network/minecraft/NetworkBinaryStream");
 const Zlib = require("zlib");
 
 class BatchPacket extends DataPacket {
@@ -62,7 +62,7 @@ class BatchPacket extends DataPacket {
     getPackets(){
         let pks = [];
         while(!this.payload.feof()){
-            pks.push(this.payload.readString(true));
+            pks.push(this.payload.read(this.payload.readUnsignedVarInt()));
         }
         return pks;
     }
