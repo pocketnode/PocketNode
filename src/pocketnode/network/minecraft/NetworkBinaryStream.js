@@ -1,6 +1,6 @@
 const UUID = pocketnode("utils/UUID");
 
-class NetworkBinaryStream extends (pocketnode.RUNNING_LOCALLY ? require("../../../../../PocketNode-BinaryStream") : require("pocketnode-binarystream")) {
+class NetworkBinaryStream extends require("pocketnode-binarystream") {
     /**
      * @return {string}
      */
@@ -13,9 +13,9 @@ class NetworkBinaryStream extends (pocketnode.RUNNING_LOCALLY ? require("../../.
      * @return {NetworkBinaryStream}
      */
     writeString(v){
-        this.writeUnsignedVarInt(v.length);
+        this.writeUnsignedVarInt(Buffer.byteLength(v));
         if(v.length === 0) return this;
-        this.append(Buffer.from(v));
+        this.append(Buffer.from(v, "utf8"));
         return this;
     }
 

@@ -228,12 +228,22 @@ class Chunk {
     }
 
     getHighestBlock(x, z){
-        return this.getHighestSubChunk().getHighestBlock(x, z);
+        let index = this.getHighestSubChunkIndex();
+        if(index === -1){
+            return -1;
+        }
+
+        for(let  y = index; y >= 0; --y){
+            let height = this.getSubChunk(y).getHighestBlock(x, z) | (y << 4);
+            if(height !== -1){
+                return height;
+            }
+        }
+
+        return -1;
     }
 
-    getFilledSubChunks(){
-        //this.pruneEmptySubChunks();
-        //return this._subChunks.size;
+    getHighestSubChunkIndex(){
         let y;
         for(y = this._subChunks.size - 1; y >= 0; --y){
             if(this._subChunks.get(y) instanceof EmptySubChunk){
@@ -242,7 +252,13 @@ class Chunk {
             break;
         }
 
-        return y + 1;
+        return y;
+    }
+
+    getFilledSubChunks(){
+        //this.pruneEmptySubChunks();
+        //return this._subChunks.size;
+        return this.getHighestSubChunkIndex() + 1;
     }
 
     pruneEmptySubChunks(){
