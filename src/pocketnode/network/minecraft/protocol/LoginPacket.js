@@ -49,7 +49,7 @@ class LoginPacket extends DataPacket {
             return;
         }
 
-        let stream = new BinaryStream(this.readString(true));
+        let stream = new BinaryStream(this.read(this.readUnsignedVarInt()));
         this.chainData = JSON.parse(stream.read(stream.readLInt()).toString());
 
         this.chainData.chain.forEach(chain => {

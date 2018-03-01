@@ -5,14 +5,12 @@ require("./utils/methods/Globals");
 const Logger = pocketnode("logger/Logger");
 const Server = pocketnode("Server");
 
-const g = global;
-
 function PocketNode(paths){
-    global.pocketnode.START_TIME = Date.now();
-    global.pocketnode.NAME = "PocketNode";
-    global.pocketnode.CODENAME = "[BEGINNINGS]";
-    global.pocketnode.VERSION = "0.0.4";
-    global.pocketnode.API_VERSION = "1.0.0";
+    this.START_TIME = Date.now();
+    this.NAME = "PocketNode";
+    this.CODENAME = "[BEGINNINGS]";
+    this.VERSION = "0.0.5";
+    this.API_VERSION = "1.0.0";
 
     let logger = new Logger("Server");
     let path = {
@@ -21,19 +19,12 @@ function PocketNode(paths){
         plugins: Path.normalize(__dirname + "/../../plugins/")
     };
 
-    for(let i in paths){
-        if(typeof path[i] !== "undefined"){
-            path[i] = paths[i];
-        }
-    }
+    for(let i in paths) if(typeof path[i] !== "undefined") path[i] = paths[i];
 
     logger.info("Loading PocketNode...");
 
-    global.pocketnode.TRAVIS_BUILD = process.argv.indexOf("--travis-build") !== -1;
-    global.pocketnode.RUNNING_LOCALLY = (process.argv.indexOf("--local") !== -1 || process.argv.indexOf("-l") !== -1);
-
-    let server = new Server(logger, path);
-    if(pocketnode.TRAVIS_BUILD === true){
+    let server = new Server(this, logger, path);
+    if(TRAVIS_BUILD === true){
         server.shutdown();
     }
 

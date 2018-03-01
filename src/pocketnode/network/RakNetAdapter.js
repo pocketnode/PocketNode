@@ -1,6 +1,4 @@
-console.log(global.pocketnode.RUNNING_LOCALLY);
-
-const RakNetServer = (pocketnode.RUNNING_LOCALLY ? require("../../../../RakNet") : require("raknet"));
+const RakNetServer = (global.RUNNING_LOCALLY ? require("../../../../RakNet") : require("raknet"));
 
 const Logger = pocketnode("logger/Logger");
 

@@ -23,6 +23,8 @@ const SFS = pocketnode("utils/SimpleFileSystem");
 
 class Server {
     initVars(){
+        this._pocketnode = {};
+
         this._bannedIps = {};
         this._bannedNames = {};
         this._ops = {};
@@ -70,8 +72,10 @@ class Server {
         this._entityCount = 0;
     }
 
-    constructor(logger, paths){
+    constructor(pocketnode, logger, paths){
         this.initVars();
+
+        this._pocketnode = pocketnode;
 
         this._logger = logger;
         this._paths = paths;
@@ -108,7 +112,7 @@ class Server {
         this._maxPlayers = this._config.getNested("server.max-players", 20);
         this._onlineMode = this._config.getNested("server.online-mode", true);
 
-        if(!pocketnode.TRAVIS_BUILD) process.stdout.write("\x1b]0;" + this.getName() + " " + this.getPocketNodeVersion() + "\x07");
+        if(!TRAVIS_BUILD) process.stdout.write("\x1b]0;" + this.getName() + " " + this.getPocketNodeVersion() + "\x07");
 
         this.getLogger().debug("Server Id:", this._serverId);
 
@@ -145,7 +149,7 @@ class Server {
 
         this._tickCounter = 0;
 
-        this.getLogger().info("Done ("+(Date.now() - pocketnode.START_TIME)+"ms)!");
+        this.getLogger().info("Done ("+(Date.now() - this._pocketnode.START_TIME)+"ms)!");
 
         this.tickProcessor();
         //this.forceShutdown();
@@ -180,21 +184,21 @@ class Server {
      * @return {string}
      */
     getName(){
-        return pocketnode.NAME;
+        return this._pocketnode.NAME;
     }
 
     /**
      * @return {string}
      */
     getCodeName(){
-        return pocketnode.CODENAME;
+        return this._pocketnode.CODENAME;
     }
 
     /**
      * @return {string}
      */
     getPocketNodeVersion(){
-        return pocketnode.VERSION;
+        return this._pocketnode.VERSION;
     }
 
     /**
@@ -215,7 +219,7 @@ class Server {
      * @return {string}
      */
     getApiVersion(){
-        return pocketnode.API_VERSION;
+        return this._pocketnode.API_VERSION;
     }
 
     /**
@@ -303,7 +307,7 @@ class Server {
      * @return {string}
      */
     getMotd(){
-        return this._config.getNested("server.motd", pocketnode.NAME + " Server");
+        return this._config.getNested("server.motd", this._pocketnode.NAME + " Server");
     }
 
     /**
