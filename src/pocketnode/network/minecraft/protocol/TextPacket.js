@@ -25,6 +25,11 @@ class TextPacket extends DataPacket {
         this.xuid = "";
     }
 
+    constructor(){
+        super();
+        this.initVars();
+    }
+
     _decodePayload(){
         this.type = this.readByte();
         this.needsTranslation = this.readBool();

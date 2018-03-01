@@ -469,11 +469,11 @@ class Player extends CommandSender {
 
         let pk = new StartGamePacket();
         pk.playerGamemode = this.server.getGamemode(); //todo?
-        pk.playerPosition = new Vector3(0, 10, 0);
-        pk.seed = 123456;
+        pk.playerPosition = new Vector3(0, 20, 0);
+        pk.seed = 0xdeadbeef;
         pk.generator = 2;
         pk.levelGamemode = 1;
-        [pk.spawnX, pk.spawnY, pk.spawnZ] = [0, 10, 0];
+        [pk.spawnX, pk.spawnY, pk.spawnZ] = [0, 5, 0];
         pk.isMultiplayerGame = true;
         pk.hasXboxLiveBroadcast = false;
         pk.hasLANBroadcast = true;
@@ -482,7 +482,6 @@ class Player extends CommandSender {
         pk.hasBonusChestEnabled = false;
         pk.hasStartWithMapEnabled = false;
         pk.hasTrustPlayersEnabled = true;
-        pk.defaultPlayerPermission = 0;
         pk.xboxLiveBroadcastMode = 0;
         pk.levelName = this.server.getMotd();
         pk.currentTick = this.server.getCurrentTick();

@@ -23,18 +23,18 @@ const SFS = pocketnode("utils/SimpleFileSystem");
 
 class Server {
     initVars(){
-        this.PocketNode = {};
+        this._pocketnode = {};
 
         this._bannedIps = {};
         this._bannedNames = {};
         this._ops = {};
         this._whitelist = {};
-        
+
         this._running = true;
         this._stopped = false;
 
         this._pluginManager = {};
-        
+
         this._scheduler = {}; //todo
 
         this._tickCounter = 0;
@@ -51,18 +51,18 @@ class Server {
         this._commandMap = {};
 
         this._resourcePackManager = {};
-        
+
         this._onlineMode = false;
 
         this._raknetAdapter = {};
-        
+
         this._serverId = Math.floor((Math.random() * 99999999)+1);
 
         this._paths = {};
         this._config = {};
 
         this._maxPlayers = -1;
-        
+
         this._players = new PlayerList();
         this._loggedInPlayers = new PlayerList();
         this._playerList = new PlayerList();
@@ -72,10 +72,11 @@ class Server {
         this._entityCount = 0;
     }
 
-    constructor(PocketNode, logger, paths){
+    constructor(pocketnode, logger, paths){
         this.initVars();
 
-        this.PocketNode = PocketNode;
+        this._pocketnode = pocketnode;
+
         this._logger = logger;
         this._paths = paths;
 
@@ -148,7 +149,7 @@ class Server {
 
         this._tickCounter = 0;
 
-        this.getLogger().info("Done ("+(Date.now() - this.PocketNode.START_TIME)+"ms)!");
+        this.getLogger().info("Done ("+(Date.now() - this._pocketnode.START_TIME)+"ms)!");
 
         this.tickProcessor();
         //this.forceShutdown();
@@ -183,21 +184,21 @@ class Server {
      * @return {string}
      */
     getName(){
-        return this.PocketNode.NAME;
+        return this._pocketnode.NAME;
     }
 
     /**
      * @return {string}
      */
     getCodeName(){
-        return this.PocketNode.CODENAME;
+        return this._pocketnode.CODENAME;
     }
 
     /**
      * @return {string}
      */
     getPocketNodeVersion(){
-        return this.PocketNode.VERSION;
+        return this._pocketnode.VERSION;
     }
 
     /**
@@ -218,7 +219,7 @@ class Server {
      * @return {string}
      */
     getApiVersion(){
-        return this.PocketNode.API_VERSION;
+        return this._pocketnode.API_VERSION;
     }
 
     /**
@@ -306,7 +307,7 @@ class Server {
      * @return {string}
      */
     getMotd(){
-        return this._config.getNested("server.motd", this.PocketNode.NAME + " Server");
+        return this._config.getNested("server.motd", this._pocketnode.NAME + " Server");
     }
 
     /**

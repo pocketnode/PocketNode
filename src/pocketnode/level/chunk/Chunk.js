@@ -1,4 +1,4 @@
-const BinaryStream = pocketnode("utils/BinaryStream");
+const BinaryStream = pocketnode("network/minecraft/NetworkBinaryStream");
 const SubChunk = pocketnode("level/chunk/SubChunk");
 const EmptySubChunk = pocketnode("level/chunk/EmptySubChunk");
 
@@ -7,7 +7,7 @@ class Chunk {
         this._x = 0;
         this._z = 0;
 
-        this._height = 256;
+        this._height = 16;
 
         /**
          * @type {Map<number, SubChunk>}
@@ -40,24 +40,8 @@ class Chunk {
         this._x = x;
         this._z = z;
 
-        if(subChunks.size !== 0) {
-            for (let [y, chunk] of subChunks) {
-                if (y < 0 || y >= this._height) {
-                    throw new Error("Invalid subchunk index " + y);
-                }
-
-                if (chunk.isEmpty()) {
-                    this._subChunks.set(y, new EmptySubChunk());
-                } else {
-                    this._subChunks.set(y, chunk);
-                }
-            }
-        }
-
-        for(let i = 0; i < this._height; ++i){
-            if(!this._subChunks.has(i)){
-                this._subChunks.set(i, new EmptySubChunk());
-            }
+        for(let y = 0; y < this._height; y++){
+            this._subChunks.set(y, subChunks.has(y) ? subChunks.get(y) : new EmptySubChunk());
         }
 
         if(heightMap.length === 256){
@@ -76,7 +60,7 @@ class Chunk {
             if(biomes.length !== 0){
                 throw new Error("Wrong Biomes value count, expected 256, got "+biomes.length);
             }else{
-                this._biomes = new Array(256).fill(0);
+                this._biomes = new Array(256).fill(0x00);
             }
         }
     }
@@ -162,7 +146,7 @@ class Chunk {
     }
 
     setBlockData(x, y, z, data){
-        return this.getSubChunk(y >> 4).setBlockData(x, y & 0x0f, z, data);
+        return this.getSubChunk(y >> 4, true).setBlockData(x, y & 0x0f, z, data);
     }
 
     getBlockLight(x, y, z){
@@ -181,17 +165,10 @@ class Chunk {
         return this.getSubChunk(y >> 4, true).setBlockSkyLight(x, y & 0x0f, z, level);
     }
 
-    getSubChunk(y, generateNew = false){
-        if(y < 0 || y >= this._height){
-            return new EmptySubChunk();
-        }else if(generateNew && this._subChunks.has(y) instanceof EmptySubChunk){
-            this._subChunks.set(y, new SubChunk());
+    getSubChunk(y, genNew = false){
+        if(genNew && this._subChunks.get(y) instanceof EmptySubChunk){
+            return this._subChunks.set(y, new SubChunk()).get(y);
         }
-
-        if(this._subChunks.get(y) === null){
-            throw new Error("something broke..");
-        }
-
         return this._subChunks.get(y);
     }
 
@@ -222,28 +199,24 @@ class Chunk {
     }
 
     recalculateHeightMap(){
-        for(let z = 0; z < 16; ++z){
-            for(let x = 0; x < 16; ++x){
-                let id = this.getHighestBlockId(x, z);
-
+        for(let x = 0; x < 16; x++){
+            for(let z = 0; z < 16; z++){
                 this.setHeightMap(x, z, this.getHighestBlock(x, z) + 1);
             }
         }
     }
 
     getHighestSubChunk(){
-        let highest = new EmptySubChunk();
-        for(let y = 16; y > 0; --y){
-            if(this._subChunks.has(y)){
+        for(let y = 15; y >= 0; y--){
+            if(!this._subChunks.has(y)){
                 continue;
             }
             if(this._subChunks.get(y).isEmpty()){
                 continue;
             }
-            highest = this._subChunks.get(y);
-            break;
+            return this._subChunks.get(y);
         }
-        return highest;
+        return new EmptySubChunk();
     }
 
     getHighestBlockId(x, z){
@@ -255,23 +228,50 @@ class Chunk {
     }
 
     getHighestBlock(x, z){
-        return this.getHighestSubChunk().getHighestBlock(x, z);
+        let index = this.getHighestSubChunkIndex();
+        if(index === -1){
+            return -1;
+        }
+
+        for(let  y = index; y >= 0; --y){
+            let height = this.getSubChunk(y).getHighestBlock(x, z) | (y << 4);
+            if(height !== -1){
+                return height;
+            }
+        }
+
+        return -1;
+    }
+
+    getHighestSubChunkIndex(){
+        let y;
+        for(y = this._subChunks.size - 1; y >= 0; --y){
+            if(this._subChunks.get(y) instanceof EmptySubChunk){
+                continue;
+            }
+            break;
+        }
+
+        return y;
     }
 
     getFilledSubChunks(){
-        this.pruneEmptySubChunks();
-        return this._subChunks.size;
+        //this.pruneEmptySubChunks();
+        //return this._subChunks.size;
+        return this.getHighestSubChunkIndex() + 1;
     }
 
     pruneEmptySubChunks(){
-        for(let [y, subChunk] of this._subChunks){
-            if(y < 0 || y >= this._height){
-                this._subChunks.delete(y);
-            }else if(subChunk instanceof EmptySubChunk){
+        for(let y = 15; y >= 0; y--){
+            if(!this._subChunks.has(y)){
                 continue;
-            }else if(subChunk.isEmpty()){
-                this._subChunks.set(y, new EmptySubChunk());
             }
+
+            if(!this._subChunks.get(y).isEmpty()){
+                return;
+            }
+
+            this._subChunks.delete(y);
         }
     }
 
@@ -305,12 +305,11 @@ class Chunk {
         let subChunkCount = this.getFilledSubChunks();
 
         stream.writeByte(subChunkCount);
-        for(let i = 0; i < subChunkCount; i++){
-            stream.append(this._subChunks.get(i).toBinary());
+        for(let y = 0; y < subChunkCount; ++y){
+            stream.append(this._subChunks.get(y).toBinary());
         }
 
-        this._heightMap.forEach(v => stream.writeShort(v));
-
+        this._heightMap.forEach(v => stream.writeLShort(v));
         this._biomes.forEach(v => stream.writeByte(v));
         stream.writeByte(0);
 
@@ -319,7 +318,7 @@ class Chunk {
         return stream.getBuffer();
     }
 
-    static getIndex(x, y, z){
+    static getIdIndex(x, y, z){
         return (x << 12) | (z << 8) | y;
     }
 

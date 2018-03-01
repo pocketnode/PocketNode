@@ -40,7 +40,7 @@ class StartGamePacket extends DataPacket {
         this.hasBonusChestEnabled = false;
         this.hasStartWithMapEnabled = false;
         this.hasTrustPlayersEnabled = false;
-        this.defaultPlayerPermission = 2;//PlayerPermissions::MEMBER; //TODO
+        this.defaultPlayerPermission = 1;//PlayerPermissions::MEMBER; //TODO
         this.xboxLiveBroadcastMode = 0; //TODO: find values
         this.serverChunkTickRadius = 4;
 

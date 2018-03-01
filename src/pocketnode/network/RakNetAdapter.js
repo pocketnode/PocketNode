@@ -1,4 +1,4 @@
-const RakNetServer = ((process.argv.indexOf("--local") !== -1 || process.argv.indexOf("-l") !== -1) ? require("../../../../RakNet") : require("raknet"));
+const RakNetServer = (global.RUNNING_LOCALLY ? require("../../../../RakNet") : require("raknet"));
 
 const Logger = pocketnode("logger/Logger");
 
@@ -7,8 +7,6 @@ const BatchPacket = pocketnode("network/minecraft/protocol/BatchPacket");
 
 const Player = pocketnode("player/Player");
 const PlayerList = pocketnode("player/PlayerList");
-
-const RakNet = raknet("RakNet");
 
 class RakNetAdapter {
     constructor(server){
@@ -39,7 +37,7 @@ class RakNetAdapter {
             if(packet instanceof BatchPacket){
                 let session;
                 if((session = this.raknet.getSessionManager().getSessionByIdentifier(identifier))){
-                    session.queueConnectedPacket(packet, (needACK === true ? RakNet.FLAG_NEED_ACK : 0) | (immediate === true ? RakNet.PRIORITY_IMMEDIATE : RakNet.PRIORITY_NORMAL));
+                    session.queueConnectedPacketFromServer(packet, needACK, immediate);
                 }
                 return null;
             }else{
