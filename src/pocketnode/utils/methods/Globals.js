@@ -230,3 +230,6 @@ global.createInterval = function(fn, interval){
         this.stop = () => clearTimeout(this.timer);
     });
 };
+
+global.TRAVIS_BUILD = process.argv.indexOf("--travis-build") !== -1;
+global.RUNNING_LOCALLY = (process.argv.indexOf("--local") !== -1 || process.argv.indexOf("-l") !== -1);

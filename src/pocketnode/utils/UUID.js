@@ -1,4 +1,4 @@
-const BinaryStream = pocketnode("utils/BinaryStream");
+const BinaryStream = pocketnode("network/minecraft/NetworkBinaryStream");
 
 class UUID {
     initVars(){
@@ -36,6 +36,7 @@ class UUID {
         return new UUID(stream.readInt(), stream.readInt(), stream.readInt(), stream.readInt(), version);
     }
 
-
-
+    getPart(i){
+        return this._parts[i] ? this._parts[i] : null;
+    }
 }

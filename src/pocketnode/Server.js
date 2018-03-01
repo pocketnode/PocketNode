@@ -27,7 +27,7 @@ const SFS = pocketnode("utils/SimpleFileSystem");
 
 class Server {
     initVars(){
-        this.PocketNode = {};
+        this._pocketnode = {};
 
         this._bannedIps = {};
         this._bannedNames = {};
@@ -77,10 +77,11 @@ class Server {
         this._entityCount = 0;
     }
 
-    constructor(PocketNode, logger, paths){
+    constructor(pocketnode, logger, paths){
         this.initVars();
 
-        this.PocketNode = PocketNode;
+        this._pocketnode = pocketnode;
+
         this._logger = logger;
         this._paths = paths;
 
@@ -152,7 +153,7 @@ class Server {
 
         this._tickCounter = 0;
 
-        this.getLogger().info("Done ("+(Date.now() - this.PocketNode.START_TIME)+"ms)!");
+        this.getLogger().info("Done ("+(Date.now() - this._pocketnode.START_TIME)+"ms)!");
 
         this.tickProcessor();
         //this.forceShutdown();
@@ -188,21 +189,21 @@ class Server {
      * @return {string}
      */
     getName(){
-        return this.PocketNode.NAME;
+        return this._pocketnode.NAME;
     }
 
     /**
      * @return {string}
      */
     getCodeName(){
-        return this.PocketNode.CODENAME;
+        return this._pocketnode.CODENAME;
     }
 
     /**
      * @return {string}
      */
     getPocketNodeVersion(){
-        return this.PocketNode.VERSION;
+        return this._pocketnode.VERSION;
     }
 
     /**
@@ -223,7 +224,7 @@ class Server {
      * @return {string}
      */
     getApiVersion(){
-        return this.PocketNode.API_VERSION;
+        return this._pocketnode.API_VERSION;
     }
 
     /**
@@ -311,7 +312,7 @@ class Server {
      * @return {string}
      */
     getMotd(){
-        return this._config.getNested("server.motd", this.PocketNode.NAME + " Server");
+        return this._config.getNested("server.motd", this._pocketnode.NAME + " Server");
     }
 
     /**

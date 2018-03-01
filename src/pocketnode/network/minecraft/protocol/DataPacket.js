@@ -1,4 +1,4 @@
-const BinaryStream = pocketnode("utils/BinaryStream");
+const BinaryStream = pocketnode("network/minecraft/NetworkBinaryStream");
 const Vector3 = pocketnode("math/Vector3");
 
 class DataPacket extends BinaryStream {

@@ -15,7 +15,7 @@ const TextPacket = pocketnode("network/minecraft/protocol/TextPacket");
 
 const ResourcePack = pocketnode("resourcepacks/ResourcePack");
 
-const BinaryStream = pocketnode("utils/BinaryStream");
+const Async = pocketnode("utils/Async");
 
 class PlayerSessionAdapter {
     constructor(player){
@@ -123,35 +123,37 @@ class PlayerSessionAdapter {
     handleRequestChunkRadius(packet){
         this.player.setViewDistance(packet.radius);
 
-        let distance = this.player.getViewDistance();
-        for(let chunkX = -distance; chunkX <= distance; chunkX++){
-            for(let chunkZ = -distance; chunkZ <= distance; chunkZ++){
-                let chunk = new Chunk(chunkX, chunkZ);
+        Async(function() {
+            let distance = this.player.getViewDistance();
+            for (let chunkX = -distance; chunkX <= distance; chunkX++) {
+                for (let chunkZ = -distance; chunkZ <= distance; chunkZ++) {
+                    let chunk = new Chunk(chunkX, chunkZ);
 
-                for(let z = 0; z < 16; ++z){
-                    for(let x = 0; x < 16; ++x){
-                        let y = 0;
-                        //chunk.setBlockId(x, y++, z, 7);
-                        //chunk.setBlockId(x, y++, z, 3);
-                        //chunk.setBlockId(x, y++, z, 3);
-                        chunk.setBlockId(x, y++, z, 2);
+                    for (let x = 0; x < 16; x++) {
+                        for (let z = 0; z < 16; z++) {
+                            let y = 0;
+                            chunk.setBlockId(x, y++, z, 7);
+                            chunk.setBlockId(x, y++, z, 3);
+                            chunk.setBlockId(x, y++, z, 3);
+                            chunk.setBlockId(x, y, z, 2);
 
-                        chunk.setHeight(y);
-
-                        for(let i = y - 1; i >= 0; i--){
-                            chunk.setBlockSkyLight(x, y, z, 0);
+                            /*for (let i = y - 1; i >= 0; i--) {
+                                chunk.setBlockSkyLight(x, y, z, 0);
+                            }*/
                         }
                     }
+
+                    chunk.recalculateHeightMap();
+                    if (chunkX === -distance && chunkZ === -distance) console.log(`${chunk.toBinary().length} > ${chunk.toBinary().toString("hex")}`);
+
+                    this.player.sendChunk(chunk);
                 }
-
-                chunk.recalculateHeightMap();
-
-                this.player.sendChunk(chunk);
             }
-        }
-
-        this.player.sendPlayStatus(PlayStatusPacket.PLAYER_SPAWN);
-
+        }.bind(this))
+            .then(function(){
+                console.log("done sending chunks");
+                this.player.sendPlayStatus(PlayStatusPacket.PLAYER_SPAWN);
+            }.bind(this));
         return true;
     }
 

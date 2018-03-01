@@ -1,7 +1,7 @@
 const DataPacket = pocketnode("network/minecraft/protocol/DataPacket");
 const MinecraftInfo = pocketnode("network/minecraft/Info");
 
-const BinaryStream = pocketnode("utils/BinaryStream");
+const BinaryStream = pocketnode("network/minecraft/NetworkBinaryStream");
 const Utils = pocketnode("utils/Utils");
 
 const Isset = pocketnode("utils/methods/Isset");
@@ -49,7 +49,7 @@ class LoginPacket extends DataPacket {
             return;
         }
 
-        let stream = new BinaryStream(this.readString(true));
+        let stream = new BinaryStream(this.read(this.readUnsignedVarInt()));
         this.chainData = JSON.parse(stream.read(stream.readLInt()).toString());
 
         this.chainData.chain.forEach(chain => {
