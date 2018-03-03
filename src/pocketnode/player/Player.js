@@ -22,6 +22,9 @@ const Skin = pocketnode("entity/Skin");
 const TextFormat = pocketnode("utils/TextFormat");
 const Base64 = pocketnode("utils/Base64");
 
+const PlayerJoinEvent = pocketnode("event/player/PlayerJoinEvent");
+const PlayerQuitEvent = pocketnode("event/player/PlayerQuitEvent");
+
 class Player extends CommandSender {
     static get SURVIVAL(){return 0}
     static get CREATIVE(){return 1}
@@ -63,7 +66,7 @@ class Player extends CommandSender {
 
         this._needACK = {};
     }
-    
+
     constructor(server, clientId, ip, port){
         super(server);
         this.initVars();
@@ -85,7 +88,7 @@ class Player extends CommandSender {
     isConnected(){
         return this._sessionAdapter !== null;
     }
-    
+
     static isValidUserName(name){
         return name.toLowerCase() !== "rcon" && name.toLowerCase() !== "console" && name.length >= 1 && name.length <= 16 && /[^A-Za-z0-9_ ]/.test(name);
     }
@@ -433,6 +436,14 @@ class Player extends CommandSender {
 
                 this.spawned = false;
 
+                var ev = new PlayerQuitEvent(this, "A Player quit due to " + reason, reason)
+                this.server.getEventSystem().callEvent(ev);
+                if(ev.getQuitMessage().length > 0){
+                    var message = ev.getQuitMessage();
+                    this.server.broadcastMessage(message);
+                } else {
+                    this.server.getLogger().warning("Player quit message is blank or null.");
+                }
                 this.server.getLogger().info(TextFormat.AQUA + this.getName() + TextFormat.WHITE + " (" + this._ip + ":" + this._port + ") has disconnected due to " + reason);
 
                 if(this.loggedIn){
@@ -516,7 +527,13 @@ class Player extends CommandSender {
 
         this.server.addOnlinePlayer(this);
         this.server.onPlayerCompleteLoginSequence(this);
-
+        var ev = new PlayerJoinEvent(this, "A Player Joined!")
+        this.server.getEventSystem().callEvent(ev);
+        if(ev.getJoinMessage().length > 0){
+            this.server.broadcastMessage(ev.getJoinMessage());
+        } else {
+            this.server.getLogger().warning("Player join message is blank or null.");
+        }
         //this.sendPlayStatus(PlayStatusPacket.PLAYER_SPAWN);
     }
 
@@ -526,9 +543,7 @@ class Player extends CommandSender {
         //}
 
         //this.resetCraftingGridType();
-
         message = TextFormat.clean(message, false);//this._removeFormat);
-        
         message = message.split("\n");
         for(let i in message){
             let messagePart = message[i];
@@ -541,7 +556,6 @@ class Player extends CommandSender {
                     this.server.getCommandMap().dispatchCommand(this, messagePart.substr(1));
                 }else{
                     let msg = "<:player> :message".replace(":player", this.getName()).replace(":message", messagePart);
-                    this.server.getLogger().info(msg);
                     this.server.broadcastMessage(msg);
                 }
             }

@@ -13,6 +13,10 @@ const ConsoleCommandReader = pocketnode("command/ConsoleCommandReader");
 const HelpCommand = pocketnode("command/defaults/HelpCommand");
 const StopCommand = pocketnode("command/defaults/StopCommand");
 const PluginsCommand = pocketnode("command/defaults/PluginsCommand");
+const SayCommand = pocketnode("command/defaults/SayCommand");
+
+const EventHandler = pocketnode("event/EventHandler");
+const TestEvent = pocketnode("event/TestEvent");
 
 const Player = pocketnode("player/Player");
 const PlayerList = pocketnode("player/PlayerList");
@@ -66,6 +70,7 @@ class Server {
         this._players = new PlayerList();
         this._loggedInPlayers = new PlayerList();
         this._playerList = new PlayerList();
+        this._eventSystem = new EventHandler(this);
 
         this._levels = new Map();
 
@@ -144,7 +149,6 @@ class Server {
     }
 
     start(){
-
         //block banned ips
 
         this._tickCounter = 0;
@@ -159,6 +163,7 @@ class Server {
         this.getCommandMap().registerCommand(new HelpCommand());
         this.getCommandMap().registerCommand(new StopCommand());
         this.getCommandMap().registerCommand(new PluginsCommand());
+        this.getCommandMap().registerCommand(new SayCommand());
     }
 
     /**
@@ -353,6 +358,7 @@ class Server {
     }
 
     broadcastMessage(message, recipients = this.getOnlinePlayers()){
+        this.getLogger().info(message);
         recipients.forEach(recipient => recipient.sendMessage(message));
 
         return recipients.length;
@@ -606,6 +612,10 @@ class Server {
 
     onPlayerCompleteLoginSequence(player){
 
+    }
+
+    getEventSystem(){
+        return this._eventSystem;
     }
 }
 
