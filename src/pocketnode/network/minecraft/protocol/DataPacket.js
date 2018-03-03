@@ -150,21 +150,17 @@ class DataPacket extends BinaryStream {
 
     writeGameRules(rules){
         this.writeUnsignedVarInt(rules.length);
-        rules.forEach((rule, name) => {
-            this.writeString(name);
-            this.writeUnsignedVarInt(rule[0]);
-            switch(rule[0]){
-                case 1:
-                    this.writeBool(rule[1]);
-                break;
-
-                case 2:
-                    this.writeUnsignedVarInt(rule[1]);
-                break;
-
-                case 3:
-                    this.writeLFloat(rule[1]);
-                break;
+        rules.forEach(rule => {
+            this.writeString(rule.getName());
+            if(typeof rule.getValue() === "boolean") {
+                this.writeByte(1);
+                this.writeBool(rule.getValue());
+            }else if(Number.isInteger(rule.getValue())){
+                this.writeByte(2);
+                this.writeUnsignedVarInt(rule.getValue());
+            }else if(typeof rule.getValue() === "number" && !Number.isInteger(rule.getValue())){
+                this.writeByte(3);
+                this.writeLFloat(rule.getValue());
             }
         });
 

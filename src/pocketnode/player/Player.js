@@ -13,6 +13,8 @@ const ChunkRadiusUpdatedPacket = pocketnode("network/minecraft/protocol/ChunkRad
 const TextPacket = pocketnode("network/minecraft/protocol/TextPacket");
 const FullChunkDataPacket =  pocketnode("network/minecraft/protocol/FullChunkDataPacket");
 
+const GameRule = pocketnode("level/GameRule");
+
 const Vector3 = pocketnode("math/Vector3");
 
 const Skin = pocketnode("entity/Skin");
@@ -488,6 +490,28 @@ class Player extends CommandSender {
         pk.enchantmentSeed = 123456;
         pk.time = 0;
         pk.hasAchievementsDisabled = true;
+        //pk.gameRules = this.getServer().getDefaultLevel().getGameRules();
+        pk.gameRules = [
+            new GameRule(GameRule.COMMAND_BLOCK_OUTPUT, true),
+            new GameRule(GameRule.DO_DAYLIGHT_CYCLE, true),
+            new GameRule(GameRule.DO_ENTITY_DROPS, true),
+            new GameRule(GameRule.DO_FIRE_TICK, true),
+            new GameRule(GameRule.DO_MOB_LOOT, true),
+            new GameRule(GameRule.DO_MOB_SPAWNING, true),
+            new GameRule(GameRule.DO_TILE_DROPS, true),
+            new GameRule(GameRule.DO_WEATHER_CYCLE, true),
+            new GameRule(GameRule.DROWNING_DAMAGE, true),
+            new GameRule(GameRule.FALL_DAMAGE, true),
+            new GameRule(GameRule.FIRE_DAMAGE, true),
+            new GameRule(GameRule.KEEP_INVENTORY, false),
+            new GameRule(GameRule.MOB_GRIEFING, true),
+            new GameRule(GameRule.NATURAL_REGENERATION, true),
+            new GameRule(GameRule.PVP, true),
+            new GameRule(GameRule.SEND_COMMAND_FEEDBACK, true),
+            new GameRule(GameRule.SHOW_COORDINATES, true),
+            new GameRule(GameRule.RANDOM_TICK_SPEED, 3),
+            new GameRule(GameRule.TNT_EXPLODES, true)
+        ];
         this.dataPacket(pk);
 
         this.server.addOnlinePlayer(this);
