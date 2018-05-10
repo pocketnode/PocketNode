@@ -19,6 +19,10 @@ const PlayerList = pocketnode("player/PlayerList");
 
 const ResourcePackManager = pocketnode("resourcepacks/ResourcePackManager");
 
+const Level = pocketnode("level/Level");
+const GeneratorManager = pocketnode("level/generator/GeneratorManager");
+const FlatGenerator = pocketnode("level/generator/FlatGenerator");
+
 const SFS = pocketnode("utils/SimpleFileSystem");
 
 class Server {
@@ -67,7 +71,10 @@ class Server {
         this._loggedInPlayers = new PlayerList();
         this._playerList = new PlayerList();
 
+        /** @type {Map<String, Level>} */
         this._levels = new Map();
+
+        this._defaultLevel = null;
 
         this._entityCount = 0;
     }
@@ -136,7 +143,11 @@ class Server {
         this._pluginManager.loadPlugins(this.getPluginPath());
         this._pluginManager.enablePlugins(); //load order STARTUP
 
-        //levels load here
+        this._generatorManager = new GeneratorManager();
+        this._generatorManager.addGenerator("flat", FlatGenerator);
+        if(this.getDefaultLevel() === null){
+            this._defaultLevel = new Level();
+        }
 
         //enable plugins POSTWORLD
 
@@ -459,6 +470,20 @@ class Server {
     }
 
     /**
+     * @return {Level|null}
+     */
+    getDefaultLevel(){
+        return this._defaultLevel;
+    }
+
+    /**
+     * @return {String}
+     */
+    getLevelType(){
+        return this._config.getNested("level.type", "flat");
+    }
+
+    /**
      * @return {Config}
      */
     getNameBans(){
@@ -497,6 +522,13 @@ class Server {
             }
         }, 1000 / 20);
         int.run();
+    }
+
+    /**
+     * @return {GeneratorManager}
+     */
+    getGeneratorManager(){
+        return this._generatorManager;
     }
 
     getRakNetAdapter(){
