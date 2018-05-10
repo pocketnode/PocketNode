@@ -62,14 +62,12 @@ class Logger {
     log(level, messages, color = TerminalTextFormat.GRAY){
         if(messages.length === 0) return;
 
-        messages = Array.from(messages).map(message => {
-            return (typeof message === "string" ? TextFormat.toTerminal(message) + TerminalTextFormat.RESET : message);
-        });
+        messages = Array.from(messages).map(message => (typeof message === "string" ? TextFormat.toTerminal(message) : message) + TerminalTextFormat.RESET);
 
         log(TerminalTextFormat.BLUE + "[" + TimeStamp("HH:mm:ss") + "]" + TerminalTextFormat.RESET + " " + color +"[" + this.caller + " > " + level + "]:" + this.subcaller, messages);
 
         function log(prefix, args){
-            console.log.apply(this, [prefix].concat(args));
+            console.log(prefix, ...args);
         }
     }
 
