@@ -6,16 +6,13 @@
  */
 function Async(cb){
     return new Promise((resolve, reject) => {
-        new Promise((done, fail) => {
-            setImmediate(() => {
-                try {
-                    cb();
-                    done();
-                } catch(e) {
-                    fail(e);
-                }
-            });
-        }).then(() => resolve()).catch(e => reject(e));
+        setImmediate(() => {
+            try {
+                resolve(cb());
+            } catch(e) {
+                reject(e);
+            }
+        });
     });
 }
 

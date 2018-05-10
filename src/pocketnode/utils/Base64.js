@@ -13,12 +13,12 @@ class Base64 {
     static decode(str, strict = false){
         if(strict === true){
             if(Base64.checkForValidAlphabet(str)){
-                return Buffer.from(str, "base64").toString();
+                return Buffer.from(str, "base64").toString("binary");
             }else{
                 return false;
             }
         }
-        return Buffer.from(str, "base64").toString();
+        return Buffer.from(str, "base64").toString("binary");
     }
 
     static encode(str){

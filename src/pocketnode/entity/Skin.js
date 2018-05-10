@@ -17,8 +17,6 @@ class Skin {
     }
 
     isValid(){
-        return true;
-        // size is always diff..
         let size = this._skinData.length;
         return (
             this._skinId !== "" &&

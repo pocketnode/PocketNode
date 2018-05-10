@@ -13,6 +13,8 @@ const ChunkRadiusUpdatedPacket = pocketnode("network/minecraft/protocol/ChunkRad
 const TextPacket = pocketnode("network/minecraft/protocol/TextPacket");
 const FullChunkDataPacket =  pocketnode("network/minecraft/protocol/FullChunkDataPacket");
 
+const DataPacketSendEvent = pocketnode("event/server/DataPacketSendEvent");
+
 const GameRule = pocketnode("level/GameRule");
 
 const Vector3 = pocketnode("math/Vector3");
@@ -21,6 +23,8 @@ const Skin = pocketnode("entity/Skin");
 
 const TextFormat = pocketnode("utils/TextFormat");
 const Base64 = pocketnode("utils/Base64");
+
+const Async = pocketnode("utils/Async");
 
 class Player extends CommandSender {
     static get SURVIVAL(){return 0}
@@ -157,18 +161,12 @@ class Player extends CommandSender {
             return true;
         }
 
-
-        let geometryJsonEncoded = Base64.decode(packet.clientData.SkinGeometry ? packet.clientData.SkinGeometry : "");
-        if(geometryJsonEncoded !== ""){
-            geometryJsonEncoded = JSON.stringify(JSON.parse(geometryJsonEncoded));
-        }
-
         let skin = new Skin(
             packet.clientData.SkinId,
             Base64.decode(packet.clientData.SkinData ? packet.clientData.SkinData : ""),
             Base64.decode(packet.clientData.CapeData ? packet.clientData.CapeData : ""),
             packet.clientData.SkinGeometryName,
-            geometryJsonEncoded
+            Base64.decode(packet.clientData.SkinGeometry ? packet.clientData.SkinGeometry : "")
         );
 
         if(!skin.isValid()){
@@ -180,34 +178,31 @@ class Player extends CommandSender {
 
         //todo: if whitelisted/banned kick
 
-        //todo: add tasks
-        //todo: verify
-        setImmediate(function(){
+        Async(function(){
             const MOJANG_ROOT_PUBLIC_KEY = "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE8ELkixyLcwlZryUQcu1TvPOmI2B7vX83ndnWRUaXm74wFfa5f/lwQNTfrLVHa2PmenpGI6JhIMUJaWZrjmMj90NoKNFSNBuKdm8rYiXsfaz3K36x/1U26HpG0ZxK/V1V";
-            let authenticated = false,
-                valid = false;
+            let info = {
+                authenticated: false,
+                valid: false
+            };
 
-            /*void function(){
-                function validateToken(jwt, currentPublicKey, first = false){
+            void function(){
+                function validateToken(jwt, _, first = false){
                     let [headB64, payloadB64, sigB64] = jwt.split(".");
 
                     let headers = JSON.parse(Base64.decode((headB64.replace(/-/g, "+").replace(/_/g, "/")), true));
 
-                    if(currentPublicKey[0] === null){
+                    if(_.currentPublicKey === null){
                         if(!first){
                             return false;
                         }
-                        currentPublicKey[0] = headers.x5u;
+                        _.currentPublicKey = headers.x5u;
                     }
 
                     let plainSignature = Base64.decode((sigB64.replace(/-/g, "+").replace(/_/g, "/")), true);
 
-                    if(plainSignature.length !== 96){
-                        console.log("len:", plainSignature.length);
-                        return false;
-                    }
+                    assert(plainSignature.length === 96);
 
-                    let [rString, sString] = plainSignature.match(/.{48}/g);
+                    let [rString, sString] = [plainSignature.substr(0, 48), plainSignature.substr(48)];
 
                     rString = rString.ltrim("\x00");
                     if(rString.charCodeAt(0) >= 128){
@@ -222,25 +217,29 @@ class Player extends CommandSender {
                     let sequence = "\x02" + String.fromCharCode(rString.length) + rString + "\x02" + String.fromCharCode(sString.length) + sString;
                     let derSignature = "\x30" + String.fromCharCode(sequence.length) + sequence;
 
-                    let crypto = require('crypto'),
-                        verifier = crypto.createVerify("SHA384");
-                    let pub = "-----BEGIN PUBLIC KEY-----\n" +
-                        currentPublicKey[0].wordwrap(64, "\n", true) +
-                        "\n-----END PUBLIC KEY-----\n";
+                    let pub = [
+                        "-----BEGIN PUBLIC KEY-----",
+                        _.currentPublicKey.wordwrap(64, "\n", true),
+                        "-----END PUBLIC KEY-----\n"
+                    ].join("\n");
 
-                    verifier.update(headB64+"."+payloadB64);
+                    const crypto = require("crypto");
+                    let verified =
+                        crypto.createVerify("SHA384")
+                            .update(headB64+"."+payloadB64)
+                            .verify(pub, derSignature, "latin1");
 
-                    if(!verifier.verify(pub, derSignature, 'base64')){
+                    if(!verified){
                         return false;
                     }
 
-                    if(currentPublicKey[0] === MOJANG_ROOT_PUBLIC_KEY){
-                        authenticated = true;
+                    if(_.currentPublicKey === MOJANG_ROOT_PUBLIC_KEY){
+                        info.authenticated = true;
                     }
 
-                    let claims =  Base64.decode((payloadB64.replace(/-/g, "+").replace(/_/g, "/")), true);
+                    let claims = JSON.parse(Base64.decode((payloadB64.replace(/-/g, "+").replace(/_/g, "/")), true));
 
-                    let now = Date.now()/1000;
+                    let now = Math.floor(Date.now() / 1000);
                     if(claims.nbf && claims.nbf > now){
                         return false;
                     }
@@ -249,39 +248,40 @@ class Player extends CommandSender {
                         return false;
                     }
 
-                    currentPublicKey[0] = claims.identityPublicKey ? claims.identityPublicKey : null;
+                    _.currentPublicKey = claims.identityPublicKey ? claims.identityPublicKey : null;
 
                     return true;
                 }
 
-                let currentKey = [null];
+                let _ = { //hack since js doesnt have &
+                    currentPublicKey: null
+                };
                 let first = true;
 
                 for(let i in packet.chainData.chain){
                     let jwt = packet.chainData.chain[i];
-                    if(!validateToken(jwt, currentKey, first)){
-                        console.log("Token isnt valid.");
+                    if(!validateToken(jwt, _, first)){
                         return;
                     }
                     first = false;
                 }
 
-                if(!validateToken(packet.clientDataJwt, currentKey)){
-                    console.log("Client JWT isnt valid.");
+                if(!validateToken(packet.clientDataJwt, _)){
                     return;
                 }
 
-                valid = true;
+                info.valid = true;
             }();
-
-            if(!this.isConnected()){ //isClosed entity
-            }else{
-                this.onVerifyCompleted(packet, valid, authenticated);
-            }*/
-            this.onVerifyCompleted(packet, true, true);
-        }.bind(this));
-
-        //this.server.getScheduler().scheduleAsyncTask(new VerifyLoginTask(this, packet));
+            
+            return info;
+        }.bind(this))
+            .then(function(info){
+                if(!this.isConnected()){
+                    this.getServer().getLogger().error("Player " + this.getName() + " was disconnected before their login could be verified");
+                }else{
+                    this.onVerifyCompleted(packet, info.valid, info.authenticated);
+                }
+            }.bind(this));
 
         return true;
     }
@@ -360,13 +360,17 @@ class Player extends CommandSender {
     }
 
     sendDataPacket(packet, needACK = false, immediate = false){
-        if(!this.isConnected()) return false;
         CheckTypes([DataPacket, packet], [Boolean, needACK], [Boolean, immediate]);
-
-        //if(packet.getName().toLowerCase() !== "batchpacket") this.server.getLogger().debug("Sending "+packet.getName()+" to "+(this.getName()!==""?this.getName():this._ip+":"+this._port));
+        if(!this.isConnected()) return false;
 
         if(!this.loggedIn && !packet.canBeSentBeforeLogin()){
             throw new Error("Attempted to send "+packet.getName()+" to "+this.getName()+" before they got logged in.");
+        }
+
+        let ev = new DataPacketSendEvent(this, packet);
+        this.getServer().getPluginManager().callEvent(ev);
+        if(ev.isCancelled()){
+            return false;
         }
 
         let identifier = this.getSessionAdapter().sendPacket(packet, needACK, immediate);
@@ -564,7 +568,7 @@ class Player extends CommandSender {
         pk.data = chunk.toBinary();
         this.dataPacket(pk);
     }
-
+    
     /**
      * @return {PlayerSessionAdapter}
      */
