@@ -9,6 +9,8 @@ const ResourcePackChunkDataPacket = pocketnode("network/minecraft/protocol/Resou
 const RequestChunkRadiusPacket = pocketnode("network/minecraft/protocol/RequestChunkRadiusPacket");
 const PlayStatusPacket = pocketnode("network/minecraft/protocol/PlayStatusPacket");
 
+const DataPacketReceiveEvent = pocketnode("event/server/DataPacketReceiveEvent");
+
 const Chunk = pocketnode("level/chunk/Chunk");
 
 const TextPacket = pocketnode("network/minecraft/protocol/TextPacket");
@@ -43,7 +45,9 @@ class PlayerSessionAdapter {
 
         this.server.getLogger().debugExtensive("Got "+packet.getName()+" from "+this);
 
-        if(!packet.handle(this)){
+        let ev = new DataPacketReceiveEvent(this.player, packet);
+        this.server.getPluginManager().callEvent(ev);
+        if(!ev.isCancelled() && !packet.handle(this)){
             this.server.getLogger().debugExtensive("Unhandled " + packet.getName() + " received from " + this.player.getName() + ": 0x" + packet.buffer.toString("hex"));
         }
     }
