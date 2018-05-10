@@ -148,6 +148,7 @@ class PlayerSessionAdapter {
                     }
 
                     chunk.recalculateHeightMap();
+                    if (chunkX === -distance && chunkZ === -distance) console.log(`${chunk.toBinary().length} > ${chunk.toBinary().toString("hex")}`);
 
                     this.player.sendChunk(chunk);
                 }
