@@ -5,11 +5,15 @@ const Plugin = pocketnode("plugin/Plugin");
 const PluginLoader = pocketnode("plugin/PluginLoader");
 const PluginManifest = pocketnode("plugin/PluginManifest");
 
+const Listener = pocketnode("event/Listener");
+const EventManager = pocketnode("event/EventManager");
+
 class PluginManager {
     initVars() {
-        this.server = {};
+        this.server = null;
         this.plugins = new Map();
         this.loaders = new Map();
+        this.eventManager = new EventManager();
     }
 
     constructor(server) {
@@ -190,6 +194,19 @@ class PluginManager {
         this.getPlugins().forEach(plugin => {
             this.disablePlugin(plugin);
         });
+    }
+
+    registerListener(listener, plugin){
+        CheckTypes([Listener, listener], [Plugin, plugin]);
+
+        return this.eventManager.registerListener(listener, plugin);
+    }
+
+    /**
+     * @param  {Event} event
+     */
+    callEvent(event){
+        return this.eventManager.callEvent(event.getName(), event);
     }
 }
 
