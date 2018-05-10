@@ -6,7 +6,7 @@
     "whitelist": false,
     "max-players": 20,
     "gamemode": 1,
-    "online-mode": true
+    "online-mode": true,
     "level": {
       "type": "flat"
     }
